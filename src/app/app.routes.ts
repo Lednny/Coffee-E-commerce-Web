@@ -4,7 +4,7 @@ import { privateGuard, publicGuard } from './core/services/guards/auth.guards';
 export const routes: Routes = [
     {
         path: '',
-        redirectTo: 'home',  // E-commerce: redirige a home, no a login
+        redirectTo: 'home',  
         pathMatch: 'full'
     },
     {
@@ -17,28 +17,46 @@ export const routes: Routes = [
         path: 'products',
         loadComponent: () => import('./features/products/products').then(m => m.Products),
         data: { animation: 'ProductsPage' }
-        // Sin guard - público para e-commerce
     },
-    // Rutas de autenticación - solo accesibles si NO está logueado
-    // Comentado hasta que exista el módulo auth
-    /*
+    
+    // Rutas de autenticación
     {
         path: 'auth',
-        loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule),
-        canActivate: [publicGuard] // Solo si NO está logueado
+        children: [
+            {
+                path: 'login',
+                loadComponent: () => import('./features/auth/features/auth-log-in/auth-log-in').then(m => m.AuthLogIn),
+                canActivate: [publicGuard],
+                data: { hideNavbarFooter: true, animation: 'LoginPage' }
+            },
+            {
+                path: 'signup',
+                loadComponent: () => import('./features/auth/features/auth-sign-up/auth-sign-up').then(m => m.AuthSignUp),
+                canActivate: [publicGuard],
+                data: { hideNavbarFooter: true, animation: 'SignupPage' }
+            }
+        ]
     },
-    */
     
-    // Ejemplo de rutas protegidas para e-commerce (agregar cuando existan)
+    // Rutas protegidas
+    {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile').then(m => m.Profile),
+        canActivate: [privateGuard]
+    },
+    
+    // Otras rutas protegidas para e-commerce
+    {
+        path: 'cart',
+        loadComponent: () => import('./features/cart/cart').then(m => m.Cart),
+        data: { animation: 'CartPage' }
+    }
+    
+    // Comentado hasta que existan los módulos
     /* 
     {
         path: 'cart/checkout',
         loadComponent: () => import('./features/cart/checkout.component').then(m => m.CheckoutComponent),
-        canActivate: [privateGuard] // Solo si está logueado
-    },
-    {
-        path: 'profile',
-        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
         canActivate: [privateGuard] // Solo si está logueado
     },
     {

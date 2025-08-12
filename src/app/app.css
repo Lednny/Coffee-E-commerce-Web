@@ -1,0 +1,17 @@
+/* Estilos para las animaciones de rutas */
+main {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Optimización para hardware acceleration */
+.route-animation {
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Asegurar que las páginas ocupen toda la altura */
+main > * {
+  min-height: 100vh;
+}

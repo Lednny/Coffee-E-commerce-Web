@@ -1,1 +1,106 @@
-<p>auth-log-in works!</p>
+<!-- component -->
+<div class="flex h-screen">
+    <!-- Left Pane - Form -->
+    <div class="w-full bg-gray-100 lg:w-1/2 flex items-center justify-center relative">
+        <!-- Back to Store Button -->
+        <div class="absolute top-4 left-4 z-10">
+            <button (click)="navigateToHome()" class="flex items-center text-gray-600 hover:text-gray-800 transition-colors duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Regresar a la tienda
+            </button>
+        </div>
+        
+        <div class="max-w-md w-full p-6">
+            <h1 class="text-3xl font-semibold mb-6 text-black text-center">Iniciar Sesión</h1>
+            <h1 class="text-sm font-semibold mb-6 text-gray-500 text-center">Ingresa a tu cuenta para acceder a todas nuestras funcionalidades</h1>
+            
+            <div class="mt-4 flex flex-col lg:flex-row items-center justify-center">
+                <div class="w-full lg:w-1/2 mb-2 lg:mb-0">
+                    <button type="button"
+                        class="w-full flex justify-center items-center gap-2 bg-white text-sm text-gray-600 p-2 rounded-md hover:bg-gray-50 border border-gray-200"
+                        (click)="loginWithGoogle()">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" width="20" height="20" alt="Google" />
+                        Sign In with Google
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-sm text-gray-600 text-center">
+                <p>o con tu email</p>
+            </div>
+            
+            <form class="space-y-4" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <!-- Error Message -->
+                <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                    <p class="text-red-600 text-sm">{{ errorMessage }}</p>
+                </div>
+                
+                <!-- Email field -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300"
+                        [class.border-red-500]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                        [class.focus:ring-red-300]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                        formControlName="email"
+                        placeholder="tu@email.com">
+                    <div *ngIf="getErrorMessage('email')" class="mt-1 text-red-500 text-sm">
+                        {{ getErrorMessage('email') }}
+                    </div>
+                </div>
+                
+                <!-- Password field -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300"
+                        [class.border-red-500]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                        [class.focus:ring-red-300]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                        formControlName="password"
+                        placeholder="••••••••">
+                    <div *ngIf="getErrorMessage('password')" class="mt-1 text-red-500 text-sm">
+                        {{ getErrorMessage('password') }}
+                    </div>
+                </div>
+                
+                <!-- Submit button -->
+                <div>
+                    <button 
+                        type="submit" 
+                        [disabled]="isLoading"
+                        class="w-full bg-black text-white p-2 rounded-md hover:bg-gray-800 focus:outline-none focus:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span *ngIf="!isLoading">Iniciar Sesión</span>
+                        <span *ngIf="isLoading" class="flex items-center justify-center">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Iniciando sesión...
+                        </span>
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-4 text-sm text-gray-600 text-center">
+                <p>¿No tienes una cuenta? <a (click)="navigateToSignup()" class="text-black hover:underline cursor-pointer">Regístrate</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Pane - Coffee Image -->
+    <div class="hidden lg:flex items-center justify-center flex-1 relative overflow-hidden">
+        <img 
+            src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+            alt="Coffee beans and cups" 
+            class="w-full h-full object-cover"
+        />
+    </div>
+</div>

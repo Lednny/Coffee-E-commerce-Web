@@ -12,6 +12,7 @@ export interface RegisterCredentials {
     username: string;
     email: string;
     password: string;
+    role: string;
 }
 
 export interface AuthResponse {
@@ -31,24 +32,65 @@ export class AuthService {
     public isAuthenticated$ = this._isAuthenticated.asObservable();
 
     constructor() {
-        this._loadUserFromStorage();
+        // Cargar usuario del storage al inicializar el servicio
+        setTimeout(() => {
+            this._loadUserFromStorage();
+        }, 0);
     }
 
     // Obtener sesión actual
     getCurrentUser() {
-        return this._currentUser.value;
+        const currentUser = this._currentUser.value;
+        
+        // Si no hay usuario en memoria pero sí en localStorage y el token es válido
+        if (!currentUser && this.isAuthenticated()) {
+            const userStr = localStorage.getItem('current_user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    this._currentUser.next(user);
+                    this._isAuthenticated.next(true);
+                    return user;
+                } catch {
+                    // Si hay error, limpiar storage
+                    this.signOut();
+                }
+            }
+        }
+        
+        return currentUser;
     }
 
     // Verificar si está autenticado
     isAuthenticated(): boolean {
         const token = this._getToken();
-        if (!token) return false;
+        if (!token) {
+            console.log('No hay token');
+            return false;
+        }
 
         try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
+            const tokenParts = token.split('.');
+            if (tokenParts.length !== 3) {
+                console.log('Token con formato inválido');
+                return false;
+            }
+
+            const payload = JSON.parse(atob(tokenParts[1]));
             const isExpired = payload.exp < Date.now() / 1000;
-            return !isExpired;
-        } catch {
+            const isValid = !isExpired;
+            
+            console.log('Verificación de token:', { 
+                hasToken: true, 
+                isExpired, 
+                isValid,
+                exp: payload.exp,
+                now: Date.now() / 1000
+            });
+            
+            return isValid;
+        } catch (error) {
+            console.error('Error al verificar token:', error);
             return false;
         }
     }
@@ -87,11 +129,55 @@ export class AuthService {
     }
 
     // Métodos privados
-    private _handleAuthSuccess(response: AuthResponse): void {
+    private _handleAuthSuccess(response: any): void {
+        // Intentar diferentes estructuras de respuesta que pueden venir del backend
+        let token: string | null = null;
+        let user: any = null;
+
+        // Caso 1: Respuesta directa con token y user
         if (response.token && response.user) {
-            localStorage.setItem('auth_token', response.token);
-            localStorage.setItem('current_user', JSON.stringify(response.user));
-            this._currentUser.next(response.user);
+            token = response.token;
+            user = response.user;
+        }
+        // Caso 2: Respuesta con access_token
+        else if (response.access_token && response.user) {
+            token = response.access_token;
+            user = response.user;
+        }
+        // Caso 3: Respuesta con accessToken
+        else if (response.accessToken && response.user) {
+            token = response.accessToken;
+            user = response.user;
+        }
+        // Caso 4: Respuesta anidada con data
+        else if (response.data && response.data.token && response.data.user) {
+            token = response.data.token;
+            user = response.data.user;
+        }
+        // Caso 5: Solo token, usuario incluido en el token
+        else if (response.token || response.access_token || response.accessToken) {
+            token = response.token || response.access_token || response.accessToken;
+            // Intentar extraer usuario del token
+            try {
+                const tokenParts = token!.split('.');
+                if (tokenParts.length === 3) {
+                    const payload = JSON.parse(atob(tokenParts[1]));
+                    user = {
+                        id: payload.sub || payload.id || payload.userId,
+                        username: payload.username || payload.name || payload.user,
+                        email: payload.email,
+                        role: payload.role
+                    };
+                }
+            } catch (error) {
+                console.error('Error al decodificar token:', error);
+            }
+        }
+
+        if (token && user) {
+            localStorage.setItem('auth_token', token);
+            localStorage.setItem('current_user', JSON.stringify(user));
+            this._currentUser.next(user);
             this._isAuthenticated.next(true);
         }
     }
@@ -100,15 +186,38 @@ export class AuthService {
         const token = this._getToken();
         const userStr = localStorage.getItem('current_user');
 
-        if (token && userStr && this.isAuthenticated()) {
+        if (token && userStr) {
             try {
-                const user = JSON.parse(userStr);
-                this._currentUser.next(user);
-                this._isAuthenticated.next(true);
-            } catch {
-                this.signOut();
+                // Verificar si el token no ha expirado
+                const tokenParts = token.split('.');
+                if (tokenParts.length === 3) {
+                    const payload = JSON.parse(atob(tokenParts[1]));
+                    const isExpired = payload.exp < Date.now() / 1000;
+                    
+                    if (!isExpired) {
+                        const user = JSON.parse(userStr);
+                        this._currentUser.next(user);
+                        this._isAuthenticated.next(true);
+                        return;
+                    }
+                }
+                this._clearAuthData();
+            } catch (error) {
+                console.error('Error al cargar usuario del storage:', error);
+                this._clearAuthData();
             }
+        } else {
+            // No hay token o usuario, asegurar estado inicial
+            this._currentUser.next(null);
+            this._isAuthenticated.next(false);
         }
+    }
+
+    private _clearAuthData(): void {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('current_user');
+        this._currentUser.next(null);
+        this._isAuthenticated.next(false);
     }
 
     private _getToken(): string | null {

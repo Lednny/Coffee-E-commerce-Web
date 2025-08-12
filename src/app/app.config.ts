@@ -1,6 +1,7 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http'; // <-- Agrega esto
+import { provideAnimations } from '@angular/platform-browser/animations'; // <-- Para animaciones
 
 import { routes } from './app.routes';
 
@@ -9,6 +10,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient() // <-- Y esto
+    provideHttpClient(), // <-- Y esto
+    provideAnimations() // <-- Habilita animaciones
   ]
 };
