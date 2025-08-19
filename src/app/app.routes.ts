@@ -18,6 +18,21 @@ export const routes: Routes = [
         loadComponent: () => import('./features/products/products').then(m => m.Products),
         data: { animation: 'ProductsPage' }
     },
+    {
+        path: 'recetas',
+        loadComponent: () => import('./features/Recetas/recetas').then(m => m.Recetas),
+        data: { animation: 'RecetasPage' }
+    },
+    {
+        path: 'nosotros',
+        loadComponent: () => import('./features/Nosotros/nosotros').then(m => m.Nosotros),
+        data: { animation: 'NosotrosPage' }
+    },
+    {
+        path: 'contacto',
+        loadComponent: () => import('./features/Contacto/contacto').then(m => m.Contacto),
+        data: { animation: 'ContactoPage' }
+    },
     
     // Rutas de autenticación
     {
@@ -50,6 +65,21 @@ export const routes: Routes = [
         path: 'cart',
         loadComponent: () => import('./features/cart/cart').then(m => m.Cart),
         data: { animation: 'CartPage' }
+    },
+    {
+        path: 'favorites',
+        loadComponent: () => import('./features/favorites/favorites').then(m => m.Favorites),
+        data: { animation: 'FavoritesPage' }
+    },
+    {
+        path: 'orders',
+        loadComponent: () => import('./features/orders/orders').then(m => m.Orders),
+        data: { animation: 'OrdersPage' }
+    },
+    {
+        path: 'configuration',
+        loadComponent: () => import('./features/configuration/configuration').then(m => m.Configuration),
+        data: { animation: 'ConfigurationPage' }
     }
     
     // Comentado hasta que existan los módulos

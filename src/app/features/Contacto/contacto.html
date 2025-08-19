@@ -1,0 +1,270 @@
+<!-- Hero Section for Contacto -->
+<section class="relative h-64 sm:h-80 lg:h-96 overflow-hidden bg-gradient-to-r from-yellow-800 to-red-800">
+  <div class="absolute inset-0 bg-black opacity-20"></div>
+  <div class="relative h-full flex items-center justify-center z-10">
+    <div class="text-center text-white px-4 sm:px-6 lg:px-8">
+      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in-up">
+        CONTÁCTANOS
+      </h1>
+      <p class="text-lg sm:text-xl md:text-2xl animate-fade-in-up animation-delay-300">
+        Estamos aquí para ayudarte con cualquier consulta
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section class="py-12 sm:py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+      
+      <!-- Contact Form -->
+      <div class="scroll-animate-left">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
+          ENVÍANOS UN MENSAJE
+        </h2>
+        <form #contactFormRef="ngForm" (ngSubmit)="onSubmit()" class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
+                Nombre completo *
+              </label>
+              <input 
+                type="text" 
+                id="nombre" 
+                name="nombre"
+                [(ngModel)]="contactForm.nombre"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
+                placeholder="Tu nombre completo">
+            </div>
+            <div>
+              <label for="telefono" class="block text-sm font-medium text-gray-700 mb-2">
+                Teléfono
+              </label>
+              <input 
+                type="tel" 
+                id="telefono" 
+                name="telefono"
+                [(ngModel)]="contactForm.telefono"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
+                placeholder="Tu número de teléfono">
+            </div>
+          </div>
+          
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+              Correo electrónico *
+            </label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email"
+              [(ngModel)]="contactForm.email"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
+              placeholder="tu@email.com">
+          </div>
+          
+          <div>
+            <label for="asunto" class="block text-sm font-medium text-gray-700 mb-2">
+              Asunto *
+            </label>
+            <select 
+              id="asunto" 
+              name="asunto"
+              [(ngModel)]="contactForm.asunto"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors">
+              <option value="">Selecciona un asunto</option>
+              <option value="consulta-general">Consulta general</option>
+              <option value="pedidos">Información sobre pedidos</option>
+              <option value="productos">Consulta sobre productos</option>
+              <option value="distribuidores">Ser distribuidor</option>
+              <option value="colaboraciones">Colaboraciones</option>
+              <option value="soporte">Soporte técnico</option>
+              <option value="otros">Otros</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="mensaje" class="block text-sm font-medium text-gray-700 mb-2">
+              Mensaje *
+            </label>
+            <textarea 
+              id="mensaje" 
+              name="mensaje"
+              [(ngModel)]="contactForm.mensaje"
+              required
+              rows="6"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors resize-none"
+              placeholder="Escribe tu mensaje aquí..."></textarea>
+          </div>
+          
+          <button 
+            type="submit"
+            [disabled]="!contactFormRef.form.valid"
+            class="w-full bg-amber-700 hover:bg-amber-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300">
+            ENVIAR MENSAJE
+          </button>
+        </form>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="scroll-animate-right">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
+          INFORMACIÓN DE CONTACTO
+        </h2>
+        
+        <div class="space-y-6 mb-8">
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+              <span class="text-amber-700 text-xl">📍</span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-1">DIRECCIÓN PRINCIPAL</h3>
+              <p class="text-gray-600">
+                Calle 123 #45-67<br>
+                Zona Rosa, Bogotá<br>
+                Colombia, 110221
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+              <span class="text-amber-700 text-xl">📞</span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-1">TELÉFONOS</h3>
+              <p class="text-gray-600">
+                +57 (1) 234-5678<br>
+                +57 (1) 234-5679<br>
+                WhatsApp: +57 300 123 4567
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+              <span class="text-amber-700 text-xl">✉️</span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-1">CORREOS ELECTRÓNICOS</h3>
+              <p class="text-gray-600">
+                info&#64;coffeeorigen.com<br>
+                ventas&#64;coffeeorigen.com<br>
+                soporte&#64;coffeeorigen.com
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+              <span class="text-amber-700 text-xl">🕒</span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-1">HORARIOS DE ATENCIÓN</h3>
+              <p class="text-gray-600">
+                Lunes a Viernes: 8:00 AM - 6:00 PM<br>
+                Sábados: 9:00 AM - 4:00 PM<br>
+                Domingos: Cerrado
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Media -->
+        <div>
+          <h3 class="font-semibold text-gray-800 mb-4">SÍGUENOS EN REDES SOCIALES</h3>
+          <div class="flex space-x-4">
+            <a href="#" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+              <span class="text-sm">f</span>
+            </a>
+            <a href="#" class="w-10 h-10 bg-pink-600 text-white rounded-full flex items-center justify-center hover:bg-pink-700 transition-colors">
+              <span class="text-sm">📷</span>
+            </a>
+            <a href="#" class="w-10 h-10 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">
+              <span class="text-sm">🐦</span>
+            </a>
+            <a href="#" class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 transition-colors">
+              <span class="text-sm">📱</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Map Section -->
+<section class="py-12 sm:py-16 bg-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-8 scroll-animate">
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">
+        ENCUÉNTRANOS
+      </h2>
+      <p class="text-gray-600">
+        Visita nuestra tienda principal en el corazón de Bogotá
+      </p>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden scroll-animate">
+      <div class="h-64 sm:h-80 lg:h-96 bg-gray-200 flex items-center justify-center">
+        <div class="text-center text-gray-500">
+          <span class="text-4xl block mb-2">🗺️</span>
+          <p class="text-sm">Mapa interactivo</p>
+          <p class="text-xs">(Se integraría con Google Maps)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-12 sm:py-16">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12 scroll-animate">
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">
+        PREGUNTAS FRECUENTES
+      </h2>
+      <p class="text-gray-600">
+        Encuentra respuestas a las consultas más comunes
+      </p>
+    </div>
+
+    <div class="space-y-6">
+      <div class="bg-white rounded-xl shadow-lg p-6 scroll-animate">
+        <h3 class="font-semibold text-gray-800 mb-3">¿Cuál es el tiempo de entrega?</h3>
+        <p class="text-gray-600">
+          El tiempo de entrega varía según tu ubicación. En Bogotá y área metropolitana, 
+          entregamos en 24-48 horas. Para otras ciudades, el tiempo es de 3-5 días hábiles.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-lg p-6 scroll-animate animation-delay-200">
+        <h3 class="font-semibold text-gray-800 mb-3">¿Ofrecen café personalizado para empresas?</h3>
+        <p class="text-gray-600">
+          Sí, ofrecemos servicios de café personalizado para empresas, incluyendo mezclas 
+          exclusivas, branding personalizado y planes de suscripción empresarial.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-lg p-6 scroll-animate animation-delay-400">
+        <h3 class="font-semibold text-gray-800 mb-3">¿Cómo conservar mejor el café?</h3>
+        <p class="text-gray-600">
+          Recomendamos almacenar el café en un lugar fresco y seco, alejado de la luz directa, 
+          en su empaque original o en un recipiente hermético. No refrigeres ni congeles el café.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-lg p-6 scroll-animate animation-delay-600">
+        <h3 class="font-semibold text-gray-800 mb-3">¿Tienen política de devoluciones?</h3>
+        <p class="text-gray-600">
+          Ofrecemos garantía de satisfacción del 100%. Si no estás completamente satisfecho 
+          con tu compra, puedes devolverla dentro de los 30 días para un reembolso completo.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

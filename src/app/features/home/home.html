@@ -47,9 +47,6 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex flex-wrap justify-center gap-3 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 scroll-animate">
       <button class="px-4 sm:px-6 py-2 bg-amber-100 text-amber-800 rounded-full font-medium text-xs sm:text-sm whitespace-nowrap">TODOS LOS CAFÉS</button>
-      <button class="px-4 sm:px-6 py-2 text-gray-600 hover:text-amber-800 rounded-full font-medium text-xs sm:text-sm whitespace-nowrap">CAFÉ EN GRANO</button>
-      <button class="px-4 sm:px-6 py-2 text-gray-600 hover:text-amber-800 rounded-full font-medium text-xs sm:text-sm whitespace-nowrap">MOLIDO</button>
-      <button class="px-4 sm:px-6 py-2 text-gray-600 hover:text-amber-800 rounded-full font-medium text-xs sm:text-sm whitespace-nowrap">CÁPSULAS</button>
     </div>
 
     <h2 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-3 sm:mb-4 scroll-animate px-4">PRODUCTOS EN PROMOCIÓN</h2>
@@ -59,53 +56,11 @@
 
     <!-- Product Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
-      <div class="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow scroll-animate mx-4 sm:mx-0">
-        <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop" 
-             alt="Café Premium" 
-             class="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover:scale-105 transition-transform">
-        <div class="p-4 sm:p-6">
-          <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-2">CAFÉ</h3>
-          <p class="text-gray-600 text-xs sm:text-sm mb-4">Tostado medio, notas de chocolate y caramelo</p>
-          <div class="flex justify-between items-center">
-            <span class="text-xl sm:text-2xl font-bold text-amber-700">$24.900</span>
-            <button class="bg-yellow-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors hover:bg-yellow-800">
-              VER MÁS
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow scroll-animate animation-delay-200 mx-4 sm:mx-0">
-        <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop" 
-             alt="Café Especial" 
-             class="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover:scale-105 transition-transform">
-        <div class="p-4 sm:p-6">
-          <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-2">CAFÉ</h3>
-          <p class="text-gray-600 text-xs sm:text-sm mb-4">Tostado suave, notas florales y cítricas</p>
-          <div class="flex justify-between items-center">
-            <span class="text-xl sm:text-2xl font-bold text-yellow-700">$28.900</span>
-            <button class="bg-yellow-700 hover:bg-yellow-800 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors">
-              VER MÁS
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow scroll-animate animation-delay-400 mx-4 sm:mx-0 sm:col-span-2 lg:col-span-1">
-        <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop" 
-             alt="Café Orgánico" 
-             class="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover:scale-105 transition-transform">
-        <div class="p-4 sm:p-6">
-          <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-2">CAFÉ</h3>
-          <p class="text-gray-600 text-xs sm:text-sm mb-4">100% orgánico, tostado artesanal</p>
-          <div class="flex justify-between items-center">
-            <span class="text-xl sm:text-2xl font-bold text-amber-700">$32.900</span>
-            <button class="bg-yellow-700 hover:bg-yellow-800 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors">
-              VER MÁS
-            </button>
-          </div>
-        </div>
-      </div>
+      <app-product-card 
+        *ngFor="let product of featuredProducts; let i = index"
+        [product]="product"
+        [animationDelay]="'animation-delay-' + (i * 200)">
+      </app-product-card>
     </div>
   </div>
 </section>

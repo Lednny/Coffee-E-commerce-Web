@@ -1,0 +1,99 @@
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-red-800 to-red-700 py-16 sm:py-28">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center scroll-animate">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
+        MIS FAVORITOS
+      </h1>
+      <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+        Tus cafés preferidos en un solo lugar
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Favorites Content -->
+<section class="py-12 sm:py-16 lg:py-20 bg-white min-h-screen">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Favorites Header -->
+    <div class="flex justify-between items-center mb-8 scroll-animate">
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">
+        Productos Favoritos ({{ favoriteProducts.length }})
+      </h2>
+      
+      <button 
+        *ngIf="favoriteProducts.length > 0"
+        (click)="clearAllFavorites()"
+        class="bg-red-100 text-red-700 px-4 py-2 rounded-lg font-semibold hover:bg-red-200 transition-colors">
+        🗑️ Limpiar Todo
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="favoriteProducts.length === 0" class="text-center py-16 scroll-animate">
+      <div class="text-gray-400 text-8xl mb-6">💔</div>
+      <h3 class="text-2xl font-semibold text-gray-700 mb-4">No tienes favoritos aún</h3>
+      <p class="text-gray-600 mb-8 max-w-md mx-auto">
+        Explora nuestros productos y agrega tus cafés favoritos haciendo clic en el corazón
+      </p>
+      <a routerLink="/products" 
+         class="inline-block bg-amber-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-amber-800 transition-colors">
+        🛍️ Explorar Productos
+      </a>
+    </div>
+
+    <!-- Favorites Grid -->
+    <div *ngIf="favoriteProducts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      <div *ngFor="let product of favoriteProducts; let i = index" class="relative scroll-animate">
+        
+        <!-- Remove from favorites button -->
+        <button 
+          (click)="removeFromFavorites(product)"
+          class="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full p-2 shadow-lg hover:bg-red-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+
+        <!-- Add to cart button -->
+        <button 
+          (click)="addToCart(product)"
+          class="absolute top-2 left-2 z-10 bg-amber-700 text-white rounded-full p-2 shadow-lg hover:bg-amber-800 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 10-4 0v4.01"></path>
+          </svg>
+        </button>
+
+        <app-product-card 
+          [product]="product"
+          [animationDelay]="'animation-delay-' + (i * 200)">
+        </app-product-card>
+      </div>
+    </div>
+
+    <!-- Tips Section -->
+    <div *ngIf="favoriteProducts.length > 0" class="mt-16 bg-amber-50 rounded-2xl p-8 scroll-animate">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">💡 Consejos</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600">
+        <div class="flex items-start gap-3">
+          <span class="text-amber-600">🔔</span>
+          <p class="text-sm">Activa las notificaciones para saber cuando tus favoritos estén en oferta</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-amber-600">📱</span>
+          <p class="text-sm">Comparte tu lista de favoritos con amigos y familiares</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-amber-600">⚡</span>
+          <p class="text-sm">Compra rápido agregando todos tus favoritos al carrito</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-amber-600">💾</span>
+          <p class="text-sm">Tus favoritos se guardan automáticamente en tu dispositivo</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

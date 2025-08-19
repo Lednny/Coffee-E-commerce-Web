@@ -1,0 +1,23 @@
+/* Limitar las líneas de texto de la descripción */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Animación suave para los botones de acción */
+.group:hover .group-hover\:scale-105 {
+  transform: scale(1.05);
+}
+
+/* Posicionamiento relativo para badges */
+.relative {
+  position: relative;
+}
+
+/* Badge absolute positioning */
+.absolute {
+  position: absolute;
+}

@@ -1,1 +1,94 @@
-<p>product-card works!</p>
+<div class="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow scroll-animate mx-4 sm:mx-0"
+     [class]="animationDelay">
+  
+  <!-- Badge de oferta (si aplica) -->
+  <div *ngIf="product.isOnSale" class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold z-10">
+    -{{ product.salePercentage }}%
+  </div>
+  
+  <!-- Badge de categoria -->
+  <div class="absolute top-4 right-4 bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-semibold z-10">
+    {{ getCategoryName(product.category) }}
+  </div>
+
+  <!-- Imagen del producto -->
+  <div class="relative">
+    <img [src]="product.imageUrl" 
+         [alt]="product.name" 
+         class="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover:scale-105 transition-transform">
+    
+    <!-- Overlay con botones de acción (aparece en hover) -->
+    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+      <div class="flex gap-2">
+        <button (click)="toggleFavorite(); $event.stopPropagation()" 
+                [class.bg-red-500]="isInFavorites()"
+                [class.text-white]="isInFavorites()"
+                [class.bg-white]="!isInFavorites()"
+                [class.text-amber-800]="!isInFavorites()"
+                class="p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg">
+          <svg class="w-4 h-4" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+          </svg>
+        </button>
+        <button (click)="onViewMore(); $event.stopPropagation()" 
+                class="bg-white text-amber-800 p-2 rounded-full hover:bg-amber-50 transition-colors shadow-lg">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Información del producto -->
+  <div class="p-4 sm:p-6">
+    <!-- Título y origen -->
+    <div class="mb-2">
+      <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-1">{{ product.name }}</h3>
+      <p *ngIf="product.origin" class="text-xs text-amber-600 font-medium">{{ product.origin }}</p>
+    </div>
+
+    <!-- Descripción -->
+    <p class="text-gray-600 text-xs sm:text-sm mb-3 line-clamp-2">{{ product.description }}</p>
+
+    <!-- Tags adicionales -->
+    <div *ngIf="product.tags && product.tags.length > 0" class="flex flex-wrap gap-1 mb-3">
+      <span *ngFor="let tag of product.tags.slice(0, 2)" 
+            class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+        {{ tag }}
+      </span>
+    </div>
+
+    <!-- Peso (si está disponible) -->
+    <p *ngIf="product.weight" class="text-xs text-gray-500 mb-3">Peso: {{ product.weight }}</p>
+
+    <!-- Precio y botones -->
+    <div class="flex justify-between items-center">
+      <div class="flex flex-col">
+        <div class="flex items-center gap-2">
+          <span class="text-xl sm:text-2xl font-bold text-amber-700">
+            ${{ product.price.toLocaleString() }}
+          </span>
+          <span *ngIf="product.isOnSale && product.originalPrice" 
+                class="text-sm text-gray-500 line-through">
+            ${{ product.originalPrice.toLocaleString() }}
+          </span>
+        </div>
+        <span *ngIf="!product.inStock" class="text-xs text-red-500 font-medium">Agotado</span>
+      </div>
+      
+      <div class="flex gap-2">
+        <button (click)="onViewMore()"
+                class="bg-gray-100 text-gray-700 px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors hover:bg-gray-200">
+          👁️
+        </button>
+        <button [disabled]="!product.inStock"
+                (click)="addToCart()"
+                class="bg-yellow-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors hover:bg-yellow-800 disabled:bg-gray-400 disabled:cursor-not-allowed">
+          {{ product.inStock ? '🛒' : '❌' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

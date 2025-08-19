@@ -3,6 +3,7 @@ import { ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../features/auth/data-access/auth.service';
+import { CartService, CartItem } from '../../services/cart.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -21,6 +22,7 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
   accountDropdownButton!: ElementRef;
 
   private _authService = inject(AuthService);
+  private _cartService = inject(CartService);
   private _router = inject(Router);
   private _cdr = inject(ChangeDetectorRef);
 
@@ -28,6 +30,10 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
   isAuthenticated = false;
   currentUser: any = null;
   accountDropdownOpen = false;
+  cartDropdownOpen = false;
+  cartItems: CartItem[] = [];
+  cartItemsCount = 0;
+  cartTotal = 0;
   private _subscription = new Subscription();
 
   ngOnInit() {
@@ -49,12 +55,27 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
         }
       )
     );
+
+    // Suscribirse a los cambios del carrito
+    this._subscription.add(
+      this._cartService.cartItems$.subscribe(
+        items => {
+          this.cartItems = items;
+          this.cartItemsCount = this._cartService.getCartItemsCount();
+          this.cartTotal = this._cartService.getCartTotal();
+          this._cdr.detectChanges();
+        }
+      )
+    );
     
     // También obtener el estado inicial directamente
     this.isAuthenticated = this._authService.isAuthenticated();
     this.currentUser = this._authService.getCurrentUser();
+    this.cartItems = [];
+    this.cartItemsCount = 0;
+    this.cartTotal = 0;
     
-    // Verificar el estado después de un breve retraso para asegurar que el AuthService se haya inicializado
+    // Verificar el estado después de un breve retraso para asegurar que los servicios se hayan inicializado
     setTimeout(() => {
       this.isAuthenticated = this._authService.isAuthenticated();
       this.currentUser = this._authService.getCurrentUser();
@@ -63,14 +84,23 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    if (this.myCartDropdownButton1) {
-      this.myCartDropdownButton1.nativeElement.click();
-    }
-
-    // Cerrar dropdown al hacer click fuera
+    // Cerrar dropdowns al hacer click fuera
     document.addEventListener('click', (event) => {
-      if (this.accountDropdownButton && !this.accountDropdownButton.nativeElement.contains(event.target)) {
+      const target = event.target as HTMLElement;
+      
+      // Cerrar dropdown de cuenta
+      if (this.accountDropdownButton && !this.accountDropdownButton.nativeElement.contains(target)) {
         this.accountDropdownOpen = false;
+        this._cdr.detectChanges();
+      }
+      
+      // Cerrar dropdown de carrito
+      if (this.myCartDropdownButton1Btn && !this.myCartDropdownButton1Btn.nativeElement.contains(target)) {
+        const cartDropdown = document.querySelector('.cart-dropdown');
+        if (cartDropdown && !cartDropdown.contains(target)) {
+          this.cartDropdownOpen = false;
+          this._cdr.detectChanges();
+        }
       }
     });
   }
@@ -103,9 +133,54 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
     this._router.navigate(['/profile']);
   }
 
+  navigateToFavorites() {
+    this.accountDropdownOpen = false;
+    this._router.navigate(['/favorites']);
+  }
+
+  navigateToConfiguration() {
+    this.accountDropdownOpen = false;
+    this._router.navigate(['/configuration']);
+  }
+
+  navigateToOrders(){
+    this.accountDropdownOpen = false;
+    this._router.navigate(['/orders']);
+  }
+
+  navigateToProducts() {
+    this.accountDropdownOpen = false;
+    this._router.navigate(['/products']);
+  }
+
+
   async signOut() {
     this.accountDropdownOpen = false;
     await this._authService.signOut();
+  }
+
+  // Cart methods
+  toggleCartDropdown() {
+    this.cartDropdownOpen = !this.cartDropdownOpen;
+  }
+
+  removeFromCart(productId: string) {
+    this._cartService.removeFromCart(productId);
+  }
+
+  updateQuantity(productId: string, quantity: number) {
+    this._cartService.updateQuantity(productId, quantity);
+  }
+
+  navigateToCart() {
+    this.cartDropdownOpen = false;
+    this._router.navigate(['/cart']);
+  }
+
+  clearCart() {
+    if (confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
+      this._cartService.clearCart();
+    }
   }
 
   getUserDisplayName(): string {

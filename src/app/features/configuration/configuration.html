@@ -1,0 +1,202 @@
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-gray-600 to-gray-900 py-16 sm:py-28">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center scroll-animate">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+        CONFIGURACIÓN
+      </h1>
+      <p class="text-lg sm:text-xl text-black max-w-2xl mx-auto">
+        Personaliza tu experiencia en Coffee Web
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Configuration Content -->
+<section class="py-12 sm:py-16 lg:py-20 bg-white min-h-screen">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+
+    <!-- Notifications Section -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 mb-8 scroll-animate">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+        🔔 Notificaciones
+      </h2>
+      
+      <div class="space-y-4">
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h3 class="font-semibold text-gray-800">Notificaciones por Email</h3>
+            <p class="text-sm text-gray-600">Recibe actualizaciones importantes por correo</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" [(ngModel)]="settings.notifications.email" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h3 class="font-semibold text-gray-800">Notificaciones Push</h3>
+            <p class="text-sm text-gray-600">Recibe notificaciones en tiempo real</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" [(ngModel)]="settings.notifications.push" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h3 class="font-semibold text-gray-800">Ofertas y Promociones</h3>
+            <p class="text-sm text-gray-600">Entérate de nuestras mejores ofertas</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" [(ngModel)]="settings.notifications.offers" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h3 class="font-semibold text-gray-800">Nuevos Productos</h3>
+            <p class="text-sm text-gray-600">Sé el primero en conocer nuestros nuevos cafés</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" [(ngModel)]="settings.notifications.newProducts" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preferences Section -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 mb-8 scroll-animate">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+        🎨 Preferencias
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Moneda</label>
+          <select [(ngModel)]="settings.preferences.currency" 
+                  class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+            <option *ngFor="let currency of currencies" [value]="currency.value">
+              {{ currency.label }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Idioma</label>
+          <select [(ngModel)]="settings.preferences.language" 
+                  class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+            <option *ngFor="let language of languages" [value]="language.value">
+              {{ language.label }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Tema</label>
+          <select [(ngModel)]="settings.preferences.theme" 
+                  class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+            <option *ngFor="let theme of themes" [value]="theme.value">
+              {{ theme.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h3 class="font-semibold text-gray-800">Guardado Automático</h3>
+            <p class="text-sm text-gray-600">Guardar cambios automáticamente</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" [(ngModel)]="settings.preferences.autoSave" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privacy Section -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 mb-8 scroll-animate">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+        🔒 Privacidad
+      </h2>
+      
+      <div class="space-y-4">
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h3 class="font-semibold text-gray-800">Compartir Datos</h3>
+            <p class="text-sm text-gray-600">Permitir compartir datos para mejorar el servicio</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" [(ngModel)]="settings.privacy.shareData" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h3 class="font-semibold text-gray-800">Analytics</h3>
+            <p class="text-sm text-gray-600">Permitir recopilación de datos de uso</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" [(ngModel)]="settings.privacy.analytics" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h3 class="font-semibold text-gray-800">Marketing</h3>
+            <p class="text-sm text-gray-600">Recibir contenido de marketing personalizado</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" [(ngModel)]="settings.privacy.marketing" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions Section -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 scroll-animate">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+        🔧 Acciones
+      </h2>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <button (click)="saveSettings()" 
+                class="bg-amber-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-800 transition-colors">
+          💾 Guardar
+        </button>
+
+        <button (click)="resetSettings()" 
+                class="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+          🔄 Restablecer
+        </button>
+
+        <button (click)="exportSettings()" 
+                class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+          📤 Exportar
+        </button>
+
+        <label class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors cursor-pointer text-center">
+          📥 Importar
+          <input type="file" (change)="importSettings($event)" accept=".json" class="hidden">
+        </label>
+      </div>
+
+      <div class="mt-6 p-4 bg-amber-50 rounded-lg">
+        <h3 class="font-semibold text-amber-800 mb-2">💡 Consejo</h3>
+        <p class="text-sm text-amber-700">
+          Puedes exportar tu configuración para respaldarla o transferirla a otro dispositivo. 
+          También puedes importar configuraciones previamente guardadas.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
