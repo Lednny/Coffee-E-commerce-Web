@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { inject } from '@angular/core';
 import { ProductCard } from '../../shared/components/product-card/product-card';
 import { Product } from '../../shared/models/product.model';
+import { BackendService } from '../../core/services/backend.service';
 
 @Component({
   selector: 'app-home',
@@ -18,76 +19,57 @@ import { Product } from '../../shared/models/product.model';
 export class Home implements OnInit, OnDestroy {
   private scrollAnimateElements: NodeListOf<HTMLElement> | null = null;
 
-  // Productos de ejemplo para mostrar en Home
-  featuredProducts: Product[] = [
-    {
-      id: '1',
-      name: 'CAFÉ COLOMBIA SUPREMO',
-      description: 'Tostado medio, notas de chocolate negro y caramelo dulce',
-      price: 24900,
-      originalPrice: 29900,
-      imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop',
-      category: 'grano',
-      inStock: true,
-      isOnSale: true,
-      salePercentage: 15,
-      rating: 4.5,
-      reviewCount: 128,
-      origin: 'Colombia',
-      weight: '500g',
-      roastLevel: 'medio',
-      tags: ['Orgánico', 'Fair Trade']
-    },
-    {
-      id: '2',
-      name: 'CAFÉ BRASIL SANTOS',
-      description: 'Tostado suave, notas florales y cítricas',
-      price: 22900,
-      imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop',
-      category: 'molido',
-      inStock: true,
-      rating: 4.2,
-      reviewCount: 87,
-      origin: 'Brasil',
-      weight: '250g',
-      roastLevel: 'claro',
-      tags: ['Suave', 'Aromático']
-    },
-    {
-      id: '3',
-      name: 'CAFÉ ETIOPÍA YIRGACHEFFE',
-      description: '100% orgánico, tostado artesanal, perfil complejo',
-      price: 32900,
-      imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop',
-      category: 'especial',
-      inStock: true,
-      rating: 4.8,
-      reviewCount: 203,
-      origin: 'Etiopía',
-      weight: '250g',
-      roastLevel: 'claro',
-      tags: ['Orgánico', 'Single Origin', 'Floral']
-    }
-  ];
+  // Productos destacados para mostrar en Home
+  featuredProducts: Product[] = [];
+  loading: boolean = false;
+  error: string | null = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private backendService: BackendService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.loadFeaturedProducts();
+    this.initScrollAnimation();
+  }
+
+  ngOnDestroy(): void {
+    // Limpiar listeners si es necesario
+  }
+
+  loadFeaturedProducts(): void {
+    this.loading = true;
+    this.error = null;
+    
+    this.backendService.getProducts().subscribe({
+      next: (products) => {
+        // Tomar los primeros 3 productos como destacados
+        this.featuredProducts = products.slice(0, 3).map(product => ({
+          ...product,
+          inStock: product.stock > 0
+        }));
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading featured products:', error);
+        this.error = 'Error al cargar productos destacados';
+        this.loading = false;
+      }
+    });
+  }
+
+  // Animaciones de scroll
+  private initScrollAnimation(): void {
     setTimeout(() => {
       this.scrollAnimateElements = document.querySelectorAll('.scroll-animate, .scroll-animate-left, .scroll-animate-right');
       this.checkScrollAnimations();
     }, 100);
   }
 
-  ngOnDestroy() {
-  }
-
   @HostListener('window:scroll', [])
-  onWindowScroll() {
+  onWindowScroll(): void {
     this.checkScrollAnimations();
   }
 
-  private checkScrollAnimations() {
+  private checkScrollAnimations(): void {
     if (!this.scrollAnimateElements) return;
 
     this.scrollAnimateElements.forEach(element => {
@@ -98,9 +80,5 @@ export class Home implements OnInit, OnDestroy {
         element.classList.add('animate-in');
       }
     });
-  }
-
-  logOut() {
-    this.authService.signOut();
   }
 }

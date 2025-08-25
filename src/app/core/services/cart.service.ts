@@ -1,215 +1,184 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { Router } from '@angular/router';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { Cart } from '../../shared/models/cart.interface';
+import { CartItem } from '../../shared/models/cart-item.interface';
 import { Product } from '../../shared/models/product.model';
-import { AuthService } from '../../features/auth/data-access/auth.service';
-
-export interface CartItem {
-  product: Product;
-  quantity: number;
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
-  private cartItems = new BehaviorSubject<CartItem[]>([]);
-  public cartItems$ = this.cartItems.asObservable();
+  private apiUrl = 'http://localhost:8080/api/cart';
+  
+  // Subject para el carrito (para el navbar)
+  private cartSubject = new BehaviorSubject<Cart>({ 
+    id: 0, 
+    items: []
+  });
+  public cartItems$ = this.cartSubject.asObservable();
+  public cart$ = this.cartSubject.asObservable(); // Alias para compatibilidad
 
-  private favoriteItems = new BehaviorSubject<Product[]>([]);
-  public favoriteItems$ = this.favoriteItems.asObservable();
-
-  private authService = inject(AuthService);
-  private router = inject(Router);
-
-  constructor() {
-    this.loadCartFromStorage();
-    this.loadFavoritesFromStorage();
+  constructor(private http: HttpClient) { 
+    // Cargar el carrito inicial
+    this.loadCart();
   }
 
-  // Cart Methods
-  addToCart(product: Product, quantity: number = 1) {
-    // Verificar si el usuario está autenticado
-    if (!this.authService.isAuthenticated()) {
-      this.showNotification('Debes iniciar sesión para agregar productos al carrito', true);
-      this.router.navigate(['/auth/signup']);
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('auth_token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    });
+  }
+
+  public loadCart(): void {
+    console.log('Cargando carrito desde el servidor...');
+    this.getMyCart().subscribe({
+      next: (cart) => {
+        console.log('Carrito cargado desde servidor:', cart);
+        this.cartSubject.next(cart);
+        console.log('Estado del carrito actualizado:', this.cartSubject.value);
+      },
+      error: (error) => {
+        console.error('Error loading cart:', error);
+        // En caso de error, mantener carrito vacío
+        this.cartSubject.next({ id: 0, items: [] });
+      }
+    });
+  }
+
+  // Métodos del carrito con headers de autenticación
+  getMyCart(): Observable<Cart> {
+    return this.http.get<Cart>(this.apiUrl, { 
+      headers: this.getAuthHeaders() 
+    }).pipe(
+      catchError(error => {
+        console.error('Error getting cart:', error);
+        return of({ id: 0, items: [] }); // Retorna carrito vacío en caso de error
+      })
+    );
+  }
+
+  addItemToCart(item: CartItem): Observable<Cart> {
+    return this.http.post<Cart>(`${this.apiUrl}/add`, item, { 
+      headers: this.getAuthHeaders() 
+    }).pipe(
+      tap(cart => this.cartSubject.next(cart)) // Actualiza el subject automáticamente
+    );
+  }
+
+  removeItemFromCart(itemId: number): Observable<Cart> {
+    return this.http.delete<Cart>(`${this.apiUrl}/remove/${itemId}`, { 
+      headers: this.getAuthHeaders() 
+    }).pipe(
+      tap(cart => this.cartSubject.next(cart))
+    );
+  }
+
+  updateItemQuantity(itemId: number, quantity: number): Observable<Cart> {
+    return this.http.put<Cart>(`${this.apiUrl}/update/${itemId}?quantity=${quantity}`, {}, { 
+      headers: this.getAuthHeaders() 
+    }).pipe(
+      tap(cart => this.cartSubject.next(cart))
+    );
+  }
+
+  // Métodos para el navbar (compatibilidad)
+  removeFromCart(itemId: number): void {
+    this.removeItemFromCart(itemId).subscribe({
+      next: (cart) => {
+        console.log('Item removed from cart', cart);
+      },
+      error: (error) => {
+        console.error('Error removing item from cart:', error);
+      }
+    });
+  }
+
+  updateQuantity(itemId: number, quantity: number): void {
+    if (quantity <= 0) {
+      this.removeFromCart(itemId);
       return;
     }
-
-    const currentItems = this.cartItems.value;
-    const existingItem = currentItems.find(item => item.product.id === product.id);
-
-    if (existingItem) {
-      existingItem.quantity += quantity;
-    } else {
-      currentItems.push({ product, quantity });
-    }
-
-    this.cartItems.next([...currentItems]);
-    this.saveCartToStorage();
-    this.showNotification(`${product.name} agregado al carrito`);
-  }
-
-  removeFromCart(productId: string) {
-    const currentItems = this.cartItems.value;
-    const updatedItems = currentItems.filter(item => item.product.id !== productId);
-    this.cartItems.next(updatedItems);
-    this.saveCartToStorage();
-  }
-
-  updateQuantity(productId: string, quantity: number) {
-    const currentItems = this.cartItems.value;
-    const item = currentItems.find(item => item.product.id === productId);
     
-    if (item) {
-      if (quantity <= 0) {
-        this.removeFromCart(productId);
-      } else {
-        item.quantity = quantity;
-        this.cartItems.next([...currentItems]);
-        this.saveCartToStorage();
+    this.updateItemQuantity(itemId, quantity).subscribe({
+      next: (cart) => {
+        console.log('Quantity updated', cart);
+      },
+      error: (error) => {
+        console.error('Error updating quantity:', error);
       }
-    }
+    });
   }
 
-  clearCart() {
-    this.cartItems.next([]);
-    this.saveCartToStorage();
-  }
-
-  getCartTotal(): number {
-    return this.cartItems.value.reduce((total, item) => {
-      return total + (item.product.price * item.quantity);
-    }, 0);
+  clearCart(): void {
+    this.http.delete<Cart>(`${this.apiUrl}/clear`, { 
+      headers: this.getAuthHeaders() 
+    }).subscribe({
+      next: (cart) => {
+        console.log('Carrito limpiado desde el servidor:', cart);
+        this.cartSubject.next(cart);
+      },
+      error: (error) => {
+        console.error('Error al limpiar carrito:', error);
+      }
+    });
   }
 
   getCartItemsCount(): number {
-    return this.cartItems.value.reduce((count, item) => count + item.quantity, 0);
+    const cart = this.cartSubject.value;
+    return cart.items.reduce((total, item) => total + item.quantity, 0);
   }
 
-  // Favorites Methods
-  addToFavorites(product: Product) {
-    // Verificar si el usuario está autenticado
-    if (!this.authService.isAuthenticated()) {
-      this.showNotification('Debes iniciar sesión para agregar productos a favoritos', true);
-      this.router.navigate(['/auth/signup']);
-      return;
-    }
-
-    const currentFavorites = this.favoriteItems.value;
-    if (!this.isInFavorites(product.id)) {
-      currentFavorites.push(product);
-      this.favoriteItems.next([...currentFavorites]);
-      this.saveFavoritesToStorage();
-      this.showNotification(`${product.name} agregado a favoritos`);
-    }
+  getCartTotal(): number {
+    const cart = this.cartSubject.value;
+    return cart.items.reduce((total, item) => total + (item.productPrice * item.quantity), 0);
   }
 
-  removeFromFavorites(productId: string) {
-    const currentFavorites = this.favoriteItems.value;
-    const updatedFavorites = currentFavorites.filter(product => product.id !== productId);
-    this.favoriteItems.next(updatedFavorites);
-    this.saveFavoritesToStorage();
+  // Método público para refrescar el carrito
+  refreshCart(): void {
+    console.log('Refrescando carrito manualmente...');
+    this.loadCart();
   }
 
-  toggleFavorite(product: Product) {
-    // Verificar si el usuario está autenticado
-    if (!this.authService.isAuthenticated()) {
-      this.showNotification('Debes iniciar sesión para gestionar favoritos', true);
-      this.router.navigate(['/auth/signup']);
-      return;
-    }
-
-    if (this.isInFavorites(product.id)) {
-      this.removeFromFavorites(product.id);
-      this.showNotification(`${product.name} removido de favoritos`);
-    } else {
-      this.addToFavorites(product);
-    }
-  }
-
-  isInFavorites(productId: string): boolean {
-    return this.favoriteItems.value.some(product => product.id === productId);
-  }
-
-  clearFavorites() {
-    this.favoriteItems.next([]);
-    this.saveFavoritesToStorage();
-  }
-
-  // Método para refrescar el carrito desde el storage
-  refreshCartFromStorage() {
-    this.loadCartFromStorage();
-  }
-
-  // Método para refrescar favoritos desde el storage
-  refreshFavoritesFromStorage() {
-    this.loadFavoritesFromStorage();
-  }
-
-  // Storage Methods
-  private saveCartToStorage() {
-    // Solo guardar si hay elementos en el carrito
-    if (this.cartItems.value.length > 0) {
-      localStorage.setItem('cartItems', JSON.stringify(this.cartItems.value));
-    } else {
-      localStorage.removeItem('cartItems');
-    }
-  }
-
-  private loadCartFromStorage() {
-    try {
-      const savedCart = localStorage.getItem('cartItems');
-      if (savedCart) {
-        const parsedCart = JSON.parse(savedCart);
-        // Verificar que sea un array válido
-        if (Array.isArray(parsedCart)) {
-          this.cartItems.next(parsedCart);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading cart from storage:', error);
-      localStorage.removeItem('cartItems');
-    }
-  }
-
-  private saveFavoritesToStorage() {
-    // Solo guardar si hay elementos en favoritos
-    if (this.favoriteItems.value.length > 0) {
-      localStorage.setItem('favoriteItems', JSON.stringify(this.favoriteItems.value));
-    } else {
-      localStorage.removeItem('favoriteItems');
-    }
-  }
-
-  private loadFavoritesFromStorage() {
-    try {
-      const savedFavorites = localStorage.getItem('favoriteItems');
-      if (savedFavorites) {
-        const parsedFavorites = JSON.parse(savedFavorites);
-        // Verificar que sea un array válido
-        if (Array.isArray(parsedFavorites)) {
-          this.favoriteItems.next(parsedFavorites);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading favorites from storage:', error);
-      localStorage.removeItem('favoriteItems');
-    }
-  }
-
-  // Notification Method
-  private showNotification(message: string, isError: boolean = false) {
-    const notification = document.createElement('div');
-    const bgColor = isError ? 'bg-red-500' : 'bg-green-500';
-    notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
+  addToCart(product: Product): void {
+    const cartItem: CartItem = {
+      productId: product.id,
+      productName: product.name,
+      productDescription: product.description,
+      productImageUrl: product.image_url,
+      productPrice: product.price,
+      productCategory: this.getCategoryName(product.category_id),
+      quantity: 1
+    };
     
-    setTimeout(() => {
-      if (document.body.contains(notification)) {
-        document.body.removeChild(notification);
+    console.log('Enviando item al carrito:', cartItem);
+    
+    this.addItemToCart(cartItem).subscribe({
+      next: (cart) => {
+        console.log('Respuesta del servidor:', cart);
+        console.log('Items en el carrito:', cart.items);
+        console.log('Estado actual del carrito después de agregar:', this.cartSubject.value);
+        
+        // Forzar actualización del carrito desde el servidor
+        this.loadCart();
+      },
+      error: (error) => {
+        console.error('Error al agregar producto al carrito:', error);
+        console.error('Detalles del error:', error.error);
       }
-    }, 3000);
+    });
+  }
+
+  private getCategoryName(categoryId: number): string {
+    const categoryNames: { [key: number]: string } = {
+      1: 'En Grano',
+      2: 'Molido',
+      3: 'Especial'
+    };
+    return categoryNames[categoryId] || 'Sin categoría';
   }
 }

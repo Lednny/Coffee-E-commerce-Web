@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product } from '../../models/product.model';
 import { CartService } from '../../../core/services/cart.service';
+import { CartItem } from '../../models/cart-item.interface';
 
 @Component({
   selector: 'app-product-card',
@@ -15,30 +16,53 @@ export class ProductCard {
   @Input() animationDelay: string = '';
   @Output() viewMore = new EventEmitter<Product>();
 
+  // Estado del componente
+  isAddingToCart = false;
+
   constructor(private cartService: CartService) {}
 
-  getCategoryName(category: string): string {
-    const categoryNames: { [key: string]: string } = {
-      'grano': 'EN GRANO',
-      'molido': 'MOLIDO',
-      'especial': 'ESPECIAL'
+  getCategoryName(categoryId: number): string {
+    const categoryNames: { [key: number]: string } = {
+      1: 'EN GRANO',
+      2: 'MOLIDO', 
+      3: 'ESPECIAL'
     };
-    return categoryNames[category] || category.toUpperCase();
+    return categoryNames[categoryId] || 'CAFÉ';
+  }
+
+  // Método para verificar si el producto está en stock
+  isInStock(): boolean {
+    return this.product.stock > 0;
   }
 
   onViewMore() {
     this.viewMore.emit(this.product);
   }
 
-  addToCart() {
+  // MÉTODO CORREGIDO para agregar al carrito
+  addToCart(): void {
+    if (this.isAddingToCart || !this.isInStock()) return; // Evitar múltiples clicks y verificar stock
+
+    this.isAddingToCart = true;
+
+    // Usar el método addToCart del servicio que ya tiene mejor manejo
     this.cartService.addToCart(this.product);
+    
+    // Simular un pequeño delay para UX
+    setTimeout(() => {
+      this.isAddingToCart = false;
+      this.showSuccessMessage();
+    }, 500);
   }
 
-  toggleFavorite() {
-    this.cartService.toggleFavorite(this.product);
+  private showSuccessMessage(): void {
+    // Implementa según tu sistema de notificaciones
+    // Por ejemplo, usando una librería como ngx-toastr
+    console.log('¡Producto agregado exitosamente!');
   }
 
-  isInFavorites(): boolean {
-    return this.cartService.isInFavorites(this.product.id);
+  private showErrorMessage(): void {
+    // Implementa según tu sistema de notificaciones
+    console.log('Error al agregar el producto al carrito');
   }
 }

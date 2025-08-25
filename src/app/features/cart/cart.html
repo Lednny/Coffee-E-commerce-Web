@@ -1,1 +1,98 @@
-<p>cart works!</p>
+<div class="cart-container">
+  <div class="cart-header">
+    <h1>Mi Carrito</h1>
+  </div>
+
+  <div *ngIf="cart$ | async as cart" class="cart-content">
+    <!-- Botón limpiar carrito -->
+    <div *ngIf="cart.items.length > 0" class="cart-actions">
+      <button (click)="clearCart()" class="clear-cart-btn">
+        Vaciar Carrito
+      </button>
+    </div>
+
+    <!-- Carrito vacío -->
+    <div *ngIf="cart.items.length === 0" class="empty-cart">
+      <div class="empty-cart-icon">🛒</div>
+      <h3>Tu carrito está vacío</h3>
+      <p>Agrega algunos productos deliciosos a tu carrito</p>
+      <a routerLink="/products" class="continue-shopping-btn">
+        Continuar Comprando
+      </a>
+    </div>
+
+    <!-- Items del carrito -->
+    <div *ngIf="cart.items.length > 0" class="cart-items">
+      <div *ngFor="let item of cart.items" class="cart-item">
+        <div class="item-image">
+          <img [src]="item.productImageUrl" [alt]="item.productName" />
+        </div>
+        
+        <div class="item-details">
+          <h3>{{ item.productName }}</h3>
+          <p class="item-description">{{ item.productDescription }}</p>
+          <p class="item-category">{{ item.productCategory }}</p>
+          <p class="item-price">{{ formatPrice(item.productPrice) }}</p>
+        </div>
+
+        <div class="quantity-controls">
+          <button 
+            (click)="decreaseQuantity(item)" 
+            class="quantity-btn minus"
+            [disabled]="isLoading">
+            -
+          </button>
+          
+          <input 
+            type="number" 
+            [value]="item.quantity" 
+            (change)="updateQuantity(item, $event)"
+            class="quantity-input"
+            min="1"
+            [disabled]="isLoading" />
+          
+          <button 
+            (click)="increaseQuantity(item)" 
+            class="quantity-btn plus"
+            [disabled]="isLoading">
+            +
+          </button>
+        </div>
+
+        <div class="item-total">
+          {{ formatPrice(item.productPrice * item.quantity) }}
+        </div>
+
+        <button 
+          (click)="removeItem(item)" 
+          class="remove-item-btn"
+          [disabled]="isLoading">
+          🗑️
+        </button>
+      </div>
+    </div>
+
+    <!-- Resumen del carrito -->
+    <div *ngIf="cart.items.length > 0" class="cart-summary">
+      <div class="summary-details">
+        <div class="summary-row">
+          <span>Artículos ({{ getItemsCount() }}):</span>
+          <span>{{ formatPrice(getCartTotal()) }}</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total:</span>
+          <span>{{ formatPrice(getCartTotal()) }}</span>
+        </div>
+      </div>
+      
+      <div class="checkout-actions">
+        <a routerLink="/products" class="continue-shopping">
+          Continuar Comprando
+        </a>
+        <button class="checkout-btn">
+          Proceder al Pago
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

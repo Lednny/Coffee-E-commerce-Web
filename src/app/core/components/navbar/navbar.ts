@@ -3,7 +3,8 @@ import { ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../features/auth/data-access/auth.service';
-import { CartService, CartItem } from '../../services/cart.service';
+import { CartService } from '../../services/cart.service';
+import { Cart } from '../../../shared/models/cart.interface';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -31,7 +32,7 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
   currentUser: any = null;
   accountDropdownOpen = false;
   cartDropdownOpen = false;
-  cartItems: CartItem[] = [];
+  cart: Cart = { items: [] };
   cartItemsCount = 0;
   cartTotal = 0;
   private _subscription = new Subscription();
@@ -59,10 +60,12 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
     // Suscribirse a los cambios del carrito
     this._subscription.add(
       this._cartService.cartItems$.subscribe(
-        items => {
-          this.cartItems = items;
+        (cart: Cart) => {
+          console.log('Navbar recibió actualización del carrito:', cart);
+          this.cart = cart;
           this.cartItemsCount = this._cartService.getCartItemsCount();
           this.cartTotal = this._cartService.getCartTotal();
+          console.log('Navbar - Items count:', this.cartItemsCount, 'Total:', this.cartTotal);
           this._cdr.detectChanges();
         }
       )
@@ -71,7 +74,7 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
     // También obtener el estado inicial directamente
     this.isAuthenticated = this._authService.isAuthenticated();
     this.currentUser = this._authService.getCurrentUser();
-    this.cartItems = [];
+    this.cart = { items: [] };
     this.cartItemsCount = 0;
     this.cartTotal = 0;
     
@@ -150,6 +153,7 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
 
   navigateToProducts() {
     this.accountDropdownOpen = false;
+    this.cartDropdownOpen = false;
     this._router.navigate(['/products']);
   }
 
@@ -164,23 +168,23 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
     this.cartDropdownOpen = !this.cartDropdownOpen;
   }
 
-  removeFromCart(productId: string) {
-    this._cartService.removeFromCart(productId);
+  removeFromCart(itemId: number) {
+    this._cartService.removeFromCart(itemId);
   }
 
-  updateQuantity(productId: string, quantity: number) {
-    this._cartService.updateQuantity(productId, quantity);
-  }
-
-  navigateToCart() {
-    this.cartDropdownOpen = false;
-    this._router.navigate(['/cart']);
+  updateQuantity(itemId: number, quantity: number) {
+    this._cartService.updateQuantity(itemId, quantity);
   }
 
   clearCart() {
     if (confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
       this._cartService.clearCart();
     }
+  }
+
+  navigateToCart() {
+    this.cartDropdownOpen = false;
+    this._router.navigate(['/cart']);
   }
 
   getUserDisplayName(): string {

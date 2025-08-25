@@ -1,0 +1,49 @@
+/* Estilos para el dropdown del carrito */
+.cart-dropdown {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e5e5;
+  transform-origin: top right;
+  animation: cartDropdownIn 0.2s ease-out;
+}
+
+@keyframes cartDropdownIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .cart-dropdown {
+    width: 300px;
+    right: -20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-dropdown {
+    width: 280px;
+    right: -40px;
+  }
+}
+
+/* Mejorar el z-index para asegurar que aparezca encima */
+.cart-dropdown {
+  z-index: 9999 !important;
+}
+
+/* Estilo para el overlay cuando el dropdown está abierto */
+.dropdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  z-index: 9998;
+}

@@ -67,11 +67,6 @@ export const routes: Routes = [
         data: { animation: 'CartPage' }
     },
     {
-        path: 'favorites',
-        loadComponent: () => import('./features/favorites/favorites').then(m => m.Favorites),
-        data: { animation: 'FavoritesPage' }
-    },
-    {
         path: 'orders',
         loadComponent: () => import('./features/orders/orders').then(m => m.Orders),
         data: { animation: 'OrdersPage' }

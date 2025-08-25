@@ -1,12 +1,15 @@
 export interface Product {
-  id: string;
-  name: string;
+  id: number;
   description: string;
+  image_url: string;
+  name: string;
   price: number;
-  originalPrice?: number; // Para mostrar precio anterior en ofertas
-  imageUrl: string;
-  category: 'grano' | 'molido' | 'especial';
-  inStock: boolean;
+  stock: number;
+  category_id: number;
+  
+  // Campos opcionales para compatibilidad con el frontend existente
+  originalPrice?: number;
+  inStock?: boolean;
   isOnSale?: boolean;
   salePercentage?: number;
   rating?: number;
