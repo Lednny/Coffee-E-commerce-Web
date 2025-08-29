@@ -2,7 +2,7 @@
 <section class="relative h-screen overflow-hidden">
   <!-- Background Image with Fade-In -->
   <div class="absolute inset-0 hero-bg" 
-       style="background-image: url('https://images.unsplash.com/photo-1447933601403-0c6688de566e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2061&q=80'); 
+        style="background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop&crop=center&q=85'); 
               background-size: cover; 
               background-position: center; 
               background-attachment: fixed;
@@ -14,22 +14,36 @@
   <!-- Hero Content -->
   <div class="relative h-full flex items-center justify-center z-10">
     <div class="text-center text-white px-4 sm:px-6 lg:px-8">
-      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 animate-fade-in-up">
-        CAFÉ DE ORIGEN
-      </h1>
-      <h2 class="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-6 sm:mb-8 animate-fade-in-up animation-delay-300 px-2">
-        COSECHADO CON PASIÓN, TOSTADO CON TRADICIÓN
-      </h2>
-      <p class="text-sm sm:text-base md:text-lg lg:text-xl mb-8 sm:mb-10 max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto opacity-90 animate-fade-in-up animation-delay-600 px-2">
-        Cultivado en las montañas, recolectado a mano y tostado en pequeños lotes para preservar todo su sabor.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up animation-delay-900 px-4">
-        <button class="bg-white text-amber-800 font-semibold py-3 sm:py-4 px-8 sm:px-10 rounded-full hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg text-sm sm:text-base">
-          CATÁLOGO
-        </button>
-        <button class="border-2 border-white text-white font-semibold py-3 sm:py-4 px-8 sm:px-10 rounded-full hover:bg-white hover:text-amber-800 transform hover:scale-105 transition-all duration-300 text-sm sm:text-base">
-          EXPLORAR
-        </button>
+      <!-- Contenedor principal para CREDENZZA y elementos debajo -->
+      <div class="relative inline-block">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-[5px] animate-fade-in-up font-playfair logo-elegant tracking-wider">
+          CREDENZZA
+        </h1>
+        
+        <!-- Línea decorativa desde la E hasta la A -->
+        <div class="absolute left-[35%] right-[1%] h-0.5 bg-white animate-fade-in-up animation-delay-200" style="top: 100%; margin-top: 4px;"></div>
+        
+        <!-- Arte y muebles alineado debajo de la C -->
+        <div class="absolute left-12 animate-fade-in-up animation-delay-300" style="top: 100%; margin-top: 15px;">
+          <h2 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-cursive italic text-left whitespace-nowrap">
+            Arte y muebles
+          </h2>
+        </div>
+      </div>
+      
+      <!-- Espaciado para el contenido siguiente -->
+      <div class="mt-16 sm:mt-20 md:mt-24">
+        <p class="text-sm sm:text-base md:text-lg lg:text-xl mb-8 sm:mb-10 max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto opacity-90 animate-fade-in-up animation-delay-600 px-2">
+          Maderas finas, artesanía mexicana y piezas únicas que combinan elegancia, calidad y durabilidad para tus espacios.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up animation-delay-900 px-4">
+          <a routerLink="/products" class="bg-white text-amber-800 font-semibold py-3 sm:py-4 px-8 sm:px-10 rounded-full hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg text-sm sm:text-base text-center">
+            CATÁLOGO
+          </a>
+          <a routerLink="/products" class="border-2 border-white text-white font-semibold py-3 sm:py-4 px-8 sm:px-10 rounded-full hover:bg-white hover:text-amber-800 transform hover:scale-105 transition-all duration-300 text-sm sm:text-base text-center">
+            EXPLORAR
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -46,12 +60,12 @@
 <section class="py-6 sm:py-8">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex flex-wrap justify-center gap-3 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 scroll-animate">
-      <button class="px-4 sm:px-6 py-2 bg-amber-100 text-amber-800 rounded-full font-medium text-xs sm:text-sm whitespace-nowrap">TODOS LOS CAFÉS</button>
+      <a routerLink="/products" class="px-4 sm:px-6 py-2 bg-amber-100 text-amber-800 rounded-full font-medium text-xs sm:text-sm whitespace-nowrap hover:bg-amber-200 transition-colors">TODOS LOS MUEBLES</a>
     </div>
 
-    <h2 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-3 sm:mb-4 scroll-animate px-4">PRODUCTOS EN PROMOCIÓN</h2>
+    <h2 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-3 sm:mb-4 scroll-animate px-4">PRINCIPALES PRODUCTOS</h2>
     <p class="text-center text-gray-600 mb-8 sm:mb-12 scroll-animate px-4 text-sm sm:text-base">
-      ESTOS SON NUESTROS CAFÉS FAVORITOS, PERFECTOS PARA CADA MOMENTO DEL DÍA
+      ESTOS SON NUESTROS MUEBLES FAVORITOS, PERFECTOS PARA TU HOGAR
     </p>
 
     <!-- Product Grid -->
@@ -59,9 +73,124 @@
       <app-product-card 
         *ngFor="let product of featuredProducts; let i = index"
         [product]="product"
-        [animationDelay]="'animation-delay-' + (i * 200)">
+        [animationDelay]="'animation-delay-' + (i * 200)"
+        (viewMore)="showProductDetail($event)">
       </app-product-card>
     </div>
+
+    <!-- Product Detail Modal -->
+<div *ngIf="showProductModal && selectedProduct" 
+     class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+     (click)="closeProductModal()">
+  
+  <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" 
+       (click)="$event.stopPropagation()">
+    
+    <!-- Modal Header -->
+    <div class="relative">
+      <button 
+        (click)="closeProductModal()"
+        class="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors">
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      
+      <!-- Product Image -->
+      <div class="relative">
+        <img [src]="selectedProduct.imageUrl" 
+             [alt]="selectedProduct.name" 
+             class="w-full h-64 sm:h-80 object-cover">
+        
+        <!-- Badges -->
+        <div *ngIf="selectedProduct.isOnSale" 
+             class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+          -{{ selectedProduct.salePercentage }}% OFF
+        </div>
+        
+        <div class="absolute bottom-4 right-4 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold">
+          {{ getCategoryName(selectedProduct.category_id) }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="p-6 sm:p-8">
+      <!-- Product Title and Origin -->
+      <div class="mb-4">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">{{ selectedProduct.name }}</h2>
+        <p *ngIf="selectedProduct.origin" class="text-amber-600 font-medium">📍 {{ selectedProduct.origin }}</p>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Descripción</h3>
+        <p class="text-gray-600 leading-relaxed">{{ selectedProduct.description }}</p>
+      </div>
+
+      <!-- Product Details Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+        <!-- Left Column -->
+        <div class="space-y-4">
+          <div *ngIf="selectedProduct.weight">
+            <h4 class="font-semibold text-gray-800">Peso</h4>
+            <p class="text-gray-600">{{ selectedProduct.weight }}</p>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="space-y-4">
+          <div>
+            <h4 class="font-semibold text-gray-800">Disponibilidad</h4>
+            <p [class.text-green-600]="selectedProduct.inStock" 
+              [class.text-red-600]="!selectedProduct.inStock"
+              class="font-medium">
+              {{ selectedProduct.inStock ? '✅ En stock' : '❌ Agotado' }}
+            </p>
+          </div>
+          
+          <div *ngIf="selectedProduct.tags && selectedProduct.tags.length > 0">
+            <h4 class="font-semibold text-gray-800 mb-2">Características</h4>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let tag of selectedProduct.tags" 
+                    class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm">
+                {{ tag }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price and Actions -->
+      <div class="border-t pt-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <!-- Price -->
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <span class="text-3xl font-bold text-amber-700">
+                ${{ selectedProduct.price.toLocaleString() }}
+              </span>
+              <span *ngIf="selectedProduct.isOnSale && selectedProduct.originalPrice" 
+                    class="text-lg text-gray-500 line-through">
+                ${{ selectedProduct.originalPrice.toLocaleString() }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-600">Precio por unidad</p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-3">
+            <button 
+              [disabled]="!selectedProduct.inStock"
+              class="flex-1 sm:flex-none bg-amber-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-amber-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+              🛒 Agregar al Carrito
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
   </div>
 </section>
 
@@ -72,19 +201,19 @@
       <!-- New Arrivals -->
       <div class="bg-gradient-to-br from-neutral-600 to-yellow-700 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-white scroll-animate-left mx-2 sm:mx-0">
         <h3 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">NUEVAS LLEGADAS</h3>
-        <p class="mb-4 sm:mb-6 text-sm sm:text-base">DESCUBRE NUESTROS NUEVOS CAFÉS DE TEMPORADA</p>
-        <button class="bg-white text-amber-800 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base">
-          EXPLORAR
-        </button>
+        <p class="mb-4 sm:mb-6 text-sm sm:text-base">DESCUBRE NUESTROS NUEVOS MUEBLES DE TEMPORADA</p>
+        <a routerLink="/products" class="bg-white text-amber-800 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base">
+          EXPLORAR 
+        </a>
       </div>
 
       <!-- Recommendations -->
       <div class="bg-gradient-to-br from-yellow-700 to-stone-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-white scroll-animate-right mx-2 sm:mx-0">
         <h3 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">RECOMENDACIONES</h3>
-        <p class="mb-4 sm:mb-6 text-sm sm:text-base">NUESTROS BARISTAS RECOMIENDAN ESTOS BLENDS ÚNICOS</p>
-        <button class="bg-white text-orange-800 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base">
+        <p class="mb-4 sm:mb-6 text-sm sm:text-base">NUESTROS CARPINTEROS RECOMIENDAN ESTOS MUEBLES ÚNICOS EN SU TIPO</p>
+        <a routerLink="/recetas" class="bg-white text-orange-800 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base">
           VER MÁS
-        </button>
+        </a>
       </div>
     </div>
   </div>
@@ -96,21 +225,23 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
       <div class="scroll-animate-left order-2 lg:order-1">
         <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&h=400&fit=crop" 
-             alt="Cultura cafetera" 
-             class="rounded-2xl shadow-2xl w-full h-64 sm:h-80 lg:h-auto object-cover">
+            alt="Cultura cafetera" 
+            class="rounded-2xl shadow-2xl w-full h-64 sm:h-80 lg:h-auto object-cover">
       </div>
       <div class="scroll-animate-right order-1 lg:order-2 text-center lg:text-left">
         <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-4 sm:mb-6 px-2">
-          TRADICIÓN QUE SE SIENTE EN CADA SORBO
+          NUESTROS SERVICIOS
         </h2>
-        <p class="text-sm sm:text-base lg:text-lg text-gray-600 mb-6 sm:mb-8 leading-relaxed px-4 lg:px-0">
-          Más que una bebida, el café es cultura, historia y pasión. 
-          Desde las montañas colombianas hasta tu taza, cada grano 
-          lleva consigo la dedicación de generaciones de caficultores.
+        <p class="text-justify text-sm sm:text-base lg:text-lg text-gray-600 mb-6 sm:mb-8 leading-relaxed px-4 lg:px-0">
+          Asesoría, Fabricación, restauración y mantenimiento de muebles en 
+          madera, herrería y resinas línea Ecopoxi, diseñando y fabricando al gusto y 
+          medidas de sus necesidades, tenemos un extenso catálogo de modelos 
+          exclusivos brindándole distintas alternativas y opciones para su mejor 
+          elección y poder cubrir sus expectativas.
         </p>
-        <button class="bg-amber-700 hover:bg-amber-800 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base">
+        <a routerLink="/nosotros" class="bg-amber-700 hover:bg-amber-800 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base">
           CONOCE NUESTRA HISTORIA
-        </button>
+        </a>
       </div>
     </div>
   </div>

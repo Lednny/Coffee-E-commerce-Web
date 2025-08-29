@@ -15,6 +15,7 @@
 /* Posicionamiento relativo para badges */
 .relative {
   position: relative;
+  max-inline-size: 100%;
 }
 
 /* Badge absolute positioning */

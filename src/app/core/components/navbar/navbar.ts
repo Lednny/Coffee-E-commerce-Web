@@ -136,11 +136,6 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
     this._router.navigate(['/profile']);
   }
 
-  navigateToFavorites() {
-    this.accountDropdownOpen = false;
-    this._router.navigate(['/favorites']);
-  }
-
   navigateToConfiguration() {
     this.accountDropdownOpen = false;
     this._router.navigate(['/configuration']);

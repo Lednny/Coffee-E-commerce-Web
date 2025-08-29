@@ -1,6 +1,7 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../auth/data-access/auth.service';
 
 interface UserSettings {
   notifications: {
@@ -30,7 +31,16 @@ interface UserSettings {
   styleUrl: './configuration.css'
 })
 export class Configuration implements OnInit {
+  private _authService = inject(AuthService);
+  
   scrollAnimateElements!: NodeListOf<Element>;
+  
+  // Profile properties
+  currentUser: any = null;
+  isEditingProfile = false;
+  originalUser: any = null;
+  
+  // Settings properties
   settings: UserSettings = {
     notifications: {
       email: true,
@@ -70,6 +80,11 @@ export class Configuration implements OnInit {
   ];
 
   ngOnInit() {
+    // Initialize user profile
+    this.currentUser = this._authService.getCurrentUser();
+    this.originalUser = { ...this.currentUser };
+    
+    // Initialize settings
     this.loadSettings();
     
     setTimeout(() => {
@@ -154,8 +169,32 @@ export class Configuration implements OnInit {
     document.body.appendChild(notification);
     
     setTimeout(() => {
-      document.body.removeChild(notification);
+      if (document.body.contains(notification)) {
+        document.body.removeChild(notification);
+      }
     }, 3000);
+  }
+
+  // Profile methods
+  startEditingProfile() {
+    this.isEditingProfile = true;
+  }
+
+  cancelEditingProfile() {
+    this.isEditingProfile = false;
+    this.currentUser = { ...this.originalUser };
+  }
+
+  saveProfile() {
+    // Implementar lógica de guardado
+    this.isEditingProfile = false;
+    this.originalUser = { ...this.currentUser };
+    this.showSuccessMessage('Perfil actualizado correctamente');
+  }
+
+  changePassword() {
+    // Implementar cambio de contraseña
+    this.showSuccessMessage('Funcionalidad próximamente');
   }
 
   @HostListener('window:scroll', [])

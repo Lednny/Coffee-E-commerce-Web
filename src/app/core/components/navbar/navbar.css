@@ -1,3 +1,8 @@
+/* Fuente para el logo */
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
+
 /* Estilos para el dropdown del carrito */
 .cart-dropdown {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);

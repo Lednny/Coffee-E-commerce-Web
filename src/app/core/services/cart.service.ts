@@ -149,11 +149,13 @@ export class CartService {
       productId: product.id,
       productName: product.name,
       productDescription: product.description,
-      productImageUrl: product.image_url,
+      productImageUrl: product.imageUrl,
       productPrice: product.price,
       productCategory: this.getCategoryName(product.category_id),
-      quantity: 1
+      quantity: 1,
+      
     };
+    
     
     console.log('Enviando item al carrito:', cartItem);
     

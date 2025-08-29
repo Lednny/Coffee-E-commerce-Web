@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { LoginCredentials, RegisterCredentials, AuthResponse } from '../../features/auth/data-access/auth.service';
@@ -44,4 +44,19 @@ export class BackendService {
     getCategoryById(id: number): Observable<any> {
         return this._http.get<any>(`${this._baseUrl}/category/${id}`);
     }
+
+    getProductPresentations(productId: number): Observable<{ [key: string]: number }> {
+    return this._http.get<{ [key: string]: number }>(`${this._baseUrl}/products/${productId}/presentations`);
+    }
+
+    calculateProductPrice(productId: number, presentation?: string): Observable<number> {
+        let httpParams = new HttpParams();
+    if (presentation) {
+        httpParams = httpParams.set('presentation', presentation);
+    }
+    
+    return this._http.get<number>(`${this._baseUrl}/products/${productId}/calculate-price`, {
+        params: httpParams
+    });
+}
 }

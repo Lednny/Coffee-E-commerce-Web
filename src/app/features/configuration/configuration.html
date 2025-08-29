@@ -16,55 +16,86 @@
 <section class="py-12 sm:py-16 lg:py-20 bg-white min-h-screen">
   <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
 
-    <!-- Notifications Section -->
+    <!-- Profile Information Section -->
     <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 mb-8 scroll-animate">
       <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-        🔔 Notificaciones
+        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+        Información Personal
       </h2>
       
-      <div class="space-y-4">
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Personal Information Card -->
+        <div class="space-y-4">
           <div>
-            <h3 class="font-semibold text-gray-800">Notificaciones por Email</h3>
-            <p class="text-sm text-gray-600">Recibe actualizaciones importantes por correo</p>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre de Usuario</label>
+            <input 
+              *ngIf="isEditingProfile"
+              [(ngModel)]="currentUser.username"
+              type="text" 
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+            <p *ngIf="!isEditingProfile" class="bg-gray-50 p-3 rounded-lg text-gray-800">
+              {{ currentUser?.username || 'No disponible' }}
+            </p>
           </div>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" [(ngModel)]="settings.notifications.email" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
-          </label>
+          
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico</label>
+            <input 
+              *ngIf="isEditingProfile"
+              [(ngModel)]="currentUser.email"
+              type="email" 
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+            <p *ngIf="!isEditingProfile" class="bg-gray-50 p-3 rounded-lg text-gray-800">
+              {{ currentUser?.email || 'No disponible' }}
+            </p>
+          </div>
+          
+          <div *ngIf="currentUser?.role">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Rol</label>
+            <div class="bg-amber-100 text-amber-800 p-3 rounded-lg font-medium">
+              {{ currentUser.role }}
+            </div>
+          </div>
         </div>
 
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-          <div>
-            <h3 class="font-semibold text-gray-800">Notificaciones Push</h3>
-            <p class="text-sm text-gray-600">Recibe notificaciones en tiempo real</p>
+        <!-- Profile Actions -->
+        <div class="space-y-4">
+          <div class="bg-amber-50 p-4 rounded-lg">
+            <h3 class="font-semibold text-amber-800 mb-2">👤 Gestión de Perfil</h3>
+            <p class="text-sm text-amber-700 mb-4">
+              Administra tu información personal y credenciales de acceso.
+            </p>
+            
+            <div class="flex gap-2 flex-wrap">
+              <button 
+                *ngIf="!isEditingProfile"
+                (click)="startEditingProfile()"
+                class="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-700 transition-colors">
+                ✏️ Editar Perfil
+              </button>
+              
+              <div *ngIf="isEditingProfile" class="flex gap-2">
+                <button 
+                  (click)="saveProfile()"
+                  class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">
+                  ✅ Guardar
+                </button>
+                <button 
+                  (click)="cancelEditingProfile()"
+                  class="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-600 transition-colors">
+                  ❌ Cancelar
+                </button>
+              </div>
+              
+              <button 
+                (click)="changePassword()"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
+                🔐 Cambiar Contraseña
+              </button>
+            </div>
           </div>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" [(ngModel)]="settings.notifications.push" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
-          </label>
-        </div>
-
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-          <div>
-            <h3 class="font-semibold text-gray-800">Ofertas y Promociones</h3>
-            <p class="text-sm text-gray-600">Entérate de nuestras mejores ofertas</p>
-          </div>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" [(ngModel)]="settings.notifications.offers" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
-          </label>
-        </div>
-
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-          <div>
-            <h3 class="font-semibold text-gray-800">Nuevos Productos</h3>
-            <p class="text-sm text-gray-600">Sé el primero en conocer nuestros nuevos cafés</p>
-          </div>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" [(ngModel)]="settings.notifications.newProducts" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
-          </label>
         </div>
       </div>
     </div>
@@ -72,7 +103,7 @@
     <!-- Preferences Section -->
     <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 mb-8 scroll-animate">
       <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-        🎨 Preferencias
+        Preferencias
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -163,40 +194,13 @@
 
     <!-- Actions Section -->
     <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 scroll-animate">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-        🔧 Acciones
-      </h2>
-      
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <button (click)="saveSettings()" 
-                class="bg-amber-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-800 transition-colors">
-          💾 Guardar
-        </button>
-
-        <button (click)="resetSettings()" 
-                class="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
-          🔄 Restablecer
-        </button>
-
-        <button (click)="exportSettings()" 
-                class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-          📤 Exportar
-        </button>
-
-        <label class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors cursor-pointer text-center">
-          📥 Importar
-          <input type="file" (change)="importSettings($event)" accept=".json" class="hidden">
-        </label>
-      </div>
 
       <div class="mt-6 p-4 bg-amber-50 rounded-lg">
         <h3 class="font-semibold text-amber-800 mb-2">💡 Consejo</h3>
         <p class="text-sm text-amber-700">
-          Puedes exportar tu configuración para respaldarla o transferirla a otro dispositivo. 
-          También puedes importar configuraciones previamente guardadas.
+          Puedes 
         </p>
       </div>
     </div>
-
   </div>
 </section>

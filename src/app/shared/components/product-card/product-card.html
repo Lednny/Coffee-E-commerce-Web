@@ -1,23 +1,29 @@
-<div class="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow scroll-animate mx-4 sm:mx-0"
-     [class]="animationDelay">
-  
-  <!-- Badge de oferta (si aplica) -->
-  <div *ngIf="product.isOnSale" class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold z-10">
-    -{{ product.salePercentage }}%
-  </div>
-  
+<div class="bg-white rounded-3xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow scroll-animate mx-4 sm:mx-0" [class]="animationDelay">
+
   <!-- Badge de categoria -->
   <div class="absolute top-4 right-4 bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-semibold z-10">
     {{ getCategoryName(product.category_id) }}
   </div>
 
   <!-- Imagen del producto -->
-  <div class="relative">
-    <img [src]="product.image_url" 
-         [alt]="product.name" 
-         class="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover:scale-105 transition-transform">
-    
-    <!-- Overlay con botones de acción (aparece en hover) -->
+  <div class="relative bg-gray-100">
+    <img [src]="product.imageUrl" 
+        [alt]="product.name"
+        [loading]="'eager'"
+        (load)="onImageLoad()"
+        (error)="onImageError($event)"
+        class="w-full h-48 sm:h-56 lg:h-64 object-cover bg-gray-50 group-hover:scale-105 transition-transform"
+        [class.opacity-0]="!imageLoaded"
+        [class.opacity-100]="imageLoaded">
+
+    <div *ngIf="!imageLoaded" 
+          class="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+      <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+      </svg>
+    </div>
+
+    <!-- Overlay con botones de acción -->
     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
       <div class="flex gap-2">
         <button (click)="onViewMore(); $event.stopPropagation()" 
@@ -33,14 +39,13 @@
 
   <!-- Información del producto -->
   <div class="p-4 sm:p-6">
-    <!-- Título y origen -->
-    <div class="mb-2">
-      <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-1">{{ product.name }}</h3>
-      <p *ngIf="product.origin" class="text-xs text-amber-600 font-medium">{{ product.origin }}</p>
+    <!-- Título -->
+    <div class="mb-3">
+      <h3 class="font-bold text-base sm:text-lg text-gray-800 line-clamp-2">{{ product.name }}</h3>
     </div>
 
     <!-- Descripción -->
-    <p class="text-gray-600 text-xs sm:text-sm mb-3 line-clamp-2">{{ product.description }}</p>
+    <p class="text-gray-600 text-xs sm:text-sm mb-4 line-clamp-3">{{ product.description }}</p>
 
     <!-- Tags adicionales -->
     <div *ngIf="product.tags && product.tags.length > 0" class="flex flex-wrap gap-1 mb-3">
@@ -54,33 +59,26 @@
     <p *ngIf="product.weight" class="text-xs text-gray-500 mb-3">Peso: {{ product.weight }}</p>
 
     <!-- Precio y botones -->
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-end">
       <div class="flex flex-col">
-        <div class="flex items-center gap-2">
-          <span class="text-xl sm:text-2xl font-bold text-amber-700">
-            ${{ product.price.toLocaleString() }}
-          </span>
-          <span *ngIf="product.isOnSale && product.originalPrice" 
-                class="text-sm text-gray-500 line-through">
-            ${{ product.originalPrice.toLocaleString() }}
-          </span>
-        </div>
-        <span *ngIf="!isInStock()" class="text-xs text-red-500 font-medium">
-          Agotado
+        <span class="text-xl sm:text-2xl font-bold text-amber-700">
+          ${{ product.price.toLocaleString() }}
         </span>
-        <span *ngIf="isInStock()" class="text-xs text-green-600 font-medium">
-          Stock: {{ product.stock }}
+        <span [class.text-green-600]="isInStock()" 
+              [class.text-red-500]="!isInStock()"
+              class="text-xs font-medium">
+          {{ isInStock() ? 'En stock (' + product.stock + ')' : 'Sin stock' }}
         </span>
       </div>
       
       <div class="flex gap-2">
         <button (click)="onViewMore()"
-                class="bg-gray-100 text-gray-700 px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors hover:bg-gray-200">
-          👁️
+                class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors hover:bg-gray-200">
+          👁️ Ver
         </button>
         <button [disabled]="!isInStock() || isAddingToCart"
                 (click)="addToCart()"
-                class="bg-yellow-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors hover:bg-yellow-800 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                class="bg-amber-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors hover:bg-amber-800 disabled:bg-gray-400 disabled:cursor-not-allowed">
           {{ isAddingToCart ? '⏳' : (isInStock() ? '🛒' : '❌') }}
         </button>
       </div>

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ProductCard } from '../../shared/components/product-card/product-card';
 import { Product } from '../../shared/models/product.model';
 import { BackendService } from '../../core/services/backend.service';
+import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-products',
@@ -23,11 +24,14 @@ export class Products implements OnInit, OnDestroy {
   loading: boolean = false;
   error: string | null = null;
   
-  // Modal de producto
+    // Modal de producto
   selectedProduct: Product | null = null;
   showProductModal: boolean = false;
+  cartService: CartService;
 
-  constructor(private backendService: BackendService) {}
+  constructor(private backendService: BackendService, cartService: CartService) {
+    this.cartService = cartService;
+  }
 
   ngOnInit(): void {
     this.loadProducts();
@@ -43,7 +47,7 @@ export class Products implements OnInit, OnDestroy {
       next: (products) => {
         this.allProducts = products.map(product => ({
           ...product,
-          inStock: product.stock > 0 // Calcular inStock basado en stock
+          inStock: product.stock > 0 
         }));
         this.filterProducts();
         this.loading = false;
@@ -88,10 +92,13 @@ export class Products implements OnInit, OnDestroy {
     this.filterProducts();
   }
 
-  // Método para obtener nombre de categoría por ID
   getCategoryName(categoryId: number): string {
-    const category = this.categories.find(cat => cat.id === categoryId);
-    return category ? category.name : 'Desconocido';
+    const categoryNames: { [key: number]: string } = {
+      1: 'MESA',
+      2: 'SILLA', 
+      3: 'CLOSÉT'
+    };
+    return categoryNames[categoryId] || 'Mueble';
   }
 
   // Modal de producto
@@ -136,5 +143,13 @@ export class Products implements OnInit, OnDestroy {
   // Método para manejar errores de carga de imagen
   onImageError(event: any): void {
     event.target.src = 'assets/images/placeholder-coffee.jpg'; // Imagen por defecto
+  }
+
+  // Método para agregar al carrito desde el modal
+  addToCartFromModal(product: Product): void {
+    if (product.stock <= 0) return;
+
+    // Lógica para agregar el producto al carrito
+    this.cartService.addToCart(product);
   }
 }

@@ -54,11 +54,6 @@ export const routes: Routes = [
     },
     
     // Rutas protegidas
-    {
-        path: 'profile',
-        loadComponent: () => import('./features/profile/profile').then(m => m.Profile),
-        canActivate: [privateGuard]
-    },
     
     // Otras rutas protegidas para e-commerce
     {

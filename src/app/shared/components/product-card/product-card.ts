@@ -2,7 +2,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product } from '../../models/product.model';
 import { CartService } from '../../../core/services/cart.service';
-import { CartItem } from '../../models/cart-item.interface';
+import { BackendService } from '../../../core/services/backend.service';
+import { ProductPresentation } from '../../models/product.model';
 
 @Component({
   selector: 'app-product-card',
@@ -18,16 +19,22 @@ export class ProductCard {
 
   // Estado del componente
   isAddingToCart = false;
+  selectedPresentation: string = '';
+  currentPrice: number = 0;
+  availablePresentations: ProductPresentation[] = [];
 
-  constructor(private cartService: CartService) {}
+  // Recarga de las imágenes
+  imageLoaded = false;
+
+  constructor(private cartService: CartService, private backendService: BackendService) {}
 
   getCategoryName(categoryId: number): string {
     const categoryNames: { [key: number]: string } = {
-      1: 'EN GRANO',
-      2: 'MOLIDO', 
-      3: 'ESPECIAL'
+      1: 'MESAS',
+      2: 'SILLAS', 
+      3: 'CLOSÉT'
     };
-    return categoryNames[categoryId] || 'CAFÉ';
+    return categoryNames[categoryId] || 'MUEBLES';
   }
 
   // Método para verificar si el producto está en stock
@@ -65,4 +72,39 @@ export class ProductCard {
     // Implementa según tu sistema de notificaciones
     console.log('Error al agregar el producto al carrito');
   }
+
+  onImageLoad(): void {
+    this.imageLoaded = true;
+  }
+
+  onImageError(event: any): void {
+    console.error('Error loading image for product:', this.product.name);
+    this.imageLoaded = true;
+  }
+
+  private initializePresentations() {
+    if (this.product.presentationPrices && Object.keys(this.product.presentationPrices).length > 0) {
+      // Tiene presentaciones
+      this.availablePresentations = Object.entries(this.product.presentationPrices).map(([name, price]) => ({
+        name,
+        price
+      }));
+      // Seleccionar la primera presentación por defecto
+      this.selectedPresentation = this.availablePresentations[0].name;
+      this.currentPrice = this.availablePresentations[0].price;
+    } else {
+      // No tiene presentaciones, usar precio base
+      this.currentPrice = this.product.price;
+    }
+  }
+
+    onPresentationChange(presentationName: string) {
+    this.selectedPresentation = presentationName;
+    const selectedPres = this.availablePresentations.find(p => p.name === presentationName);
+    if (selectedPres) {
+      this.currentPrice = selectedPres.price;
+    }
+  }
+
+  
 }
