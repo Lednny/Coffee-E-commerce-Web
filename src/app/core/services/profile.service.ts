@@ -1,23 +1,35 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserProfile } from "../../shared/models/user.model";
 import { UpdateUserProfile } from "../../shared/models/user.model";
+import { BackendService } from './backend.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProfileService {
-  private apiUrl = 'http://localhost:8080/api/cart';
+  private apiUrl = 'http://localhost:8080/api/users';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private backendService: BackendService) {}
 
-  getUserProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${this.apiUrl}/users/profile`);
-  }
+    private getAuthHeaders(): HttpHeaders {
+      const token = localStorage.getItem('auth_token');
+      return new HttpHeaders({
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      });
+    }
+    
+    getUserProfile(): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/profile`, {
+            headers: this.getAuthHeaders()
+        });
+    }
 
-  // Actualizar perfil del usuario
-  updateUserProfile(userData: UpdateUserProfile): Observable<UserProfile> {
-    return this.http.put<UserProfile>(`${this.apiUrl}/users/profile`, userData);
-  }
+    updateUserProfile(userData: any): Observable<any> {
+        return this.http.put<any>(`${this.apiUrl}/profile`, userData, {
+            headers: this.getAuthHeaders()
+        });
+    }
 }

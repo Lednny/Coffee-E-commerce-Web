@@ -64,7 +64,7 @@ export const routes: Routes = [
     {
         path: 'orders',
         loadComponent: () => import('./features/orders/orders').then(m => m.Orders),
-        data: { animation: 'OrdersPage' }
+        data: { hideNavbarFooter:true, animation: 'OrdersPage' }
     },
     {
         path: 'configuration',

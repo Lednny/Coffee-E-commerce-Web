@@ -1,11 +1,14 @@
+<!-- Navbar -->
+<app-navbar></app-navbar>
+
 <!-- Hero Section -->
-<section class="bg-gradient-to-br from-red-500 to-yellow-600 py-12 sm:py-28">
+<section class="bg-gradient-to-br from-gray-600 to-gray-900 py-12 sm:py-28 pt-20 sm:pt-24">
   <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center scroll-animate">
-      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 mb-2">
+    <div class="text-center scroll-animate top-6">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
         MIS PEDIDOS
       </h1>
-      <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+      <p class="text-lg sm:text-xl text-gray-200 max-w-2xl mx-auto">
         Revisa el estado de tus pedidos y historial de compras
       </p>
     </div>
@@ -24,7 +27,7 @@
         Necesitas estar autenticado para acceder a tu historial de pedidos
       </p>
       <a routerLink="/auth/login" 
-         class="inline-block bg-amber-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-amber-800 transition-colors">
+        class="inline-block bg-amber-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-amber-800 transition-colors">
         🔑 Iniciar Sesión
       </a>
     </div>
@@ -32,7 +35,17 @@
     <!-- Authenticated Content -->
     <div *ngIf="isAuthenticated">
       
-      <!-- Filter Buttons -->
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="text-center py-16 scroll-animate">
+        <div class="text-gray-400 text-8xl mb-6">⏳</div>
+        <h3 class="text-2xl font-semibold text-gray-700 mb-4">Cargando tus pedidos...</h3>
+        <p class="text-gray-600">Por favor espera un momento</p>
+      </div>
+
+      <!-- Content when not loading -->
+      <div *ngIf="!isLoading">
+        
+        <!-- Filter Buttons -->
       <div class="flex flex-wrap gap-3 mb-8 scroll-animate">
         <button 
           (click)="onStatusFilter('todos')"
@@ -115,8 +128,9 @@
           <div class="p-4 sm:p-6 border-b border-gray-100">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h3 class="text-lg font-semibold text-gray-800">Pedido #{{ order.id }}</h3>
-                <p class="text-sm text-gray-600">{{ order.date | date:'dd/MM/yyyy' }} - {{ order.date | date:'HH:mm' }}</p>
+                <h3 class="text-lg font-semibold text-gray-800">Pedido #{{ order.userOrderNumber }}</h3>
+                <p class="text-sm text-gray-600">{{ formatOrderDate(order.createdAt) }}</p>
+                <p class="text-sm text-gray-500">{{ order.firstProductName }}</p>
               </div>
               
               <div class="flex items-center gap-3">
@@ -125,7 +139,7 @@
                   {{ getStatusText(order.status) }}
                 </span>
                 <span class="text-lg font-bold text-amber-700">
-                  ${{ order.total.toLocaleString() }}
+                  ${{ getOrderTotal(order).toLocaleString() }}
                 </span>
               </div>
             </div>
@@ -136,28 +150,28 @@
             <div class="space-y-3">
               <div *ngFor="let item of order.items" 
                    class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                <img [src]="item.productImage" 
-                     [alt]="item.productName" 
-                     class="w-16 h-16 object-cover rounded-lg">
+                <div class="w-16 h-16 bg-amber-100 rounded-lg flex items-center justify-center">
+                  <span class="text-2xl">🪑</span>
+                </div>
                 
                 <div class="flex-1 min-w-0">
                   <h4 class="font-semibold text-gray-800 truncate">{{ item.productName }}</h4>
                   <p class="text-sm text-gray-600">Cantidad: {{ item.quantity }}</p>
-                  <p class="text-sm text-gray-600">Precio: ${{ item.price.toLocaleString() }}</p>
+                  <p class="text-sm text-gray-600">Precio: ${{ item.unitPrice.toLocaleString() }}</p>
                 </div>
                 
                 <div class="text-right">
-                  <p class="font-semibold text-amber-700">${{ item.total.toLocaleString() }}</p>
+                  <p class="font-semibold text-amber-700">${{ item.subtotal.toLocaleString() }}</p>
                 </div>
               </div>
             </div>
 
-            <!-- Shipping Address -->
+            <!-- Order Description -->
             <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-              <h4 class="font-semibold text-gray-800 mb-1">📍 Dirección de envío</h4>
-              <p class="text-sm text-gray-600">{{ order.shippingAddress }}</p>
-              <p *ngIf="order.trackingNumber" class="text-sm text-blue-600 mt-1">
-                🚚 Seguimiento: {{ order.trackingNumber }}
+              <h4 class="font-semibold text-gray-800 mb-1">� Descripción del pedido</h4>
+              <p class="text-sm text-gray-600">{{ order.productsDescription }}</p>
+              <p class="text-sm text-blue-600 mt-1">
+                🚚 Total de {{ getTotalItems(order) }} artículos
               </p>
             </div>
 
@@ -170,13 +184,15 @@
               </button>
               
               <button 
-                *ngIf="order.status === 'enviado' || order.status === 'entregado'"
+                *ngIf="order.status === 'SHIPPED' || order.status === 'DELIVERED'"
                 (click)="trackOrder(order)"
                 class="flex-1 sm:flex-none bg-blue-100 text-blue-700 px-6 py-2 rounded-lg font-semibold hover:bg-blue-200 transition-colors">
                 📦 Rastrear
               </button>
               
-              <button class="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+              <button 
+                (click)="viewOrderDetails(order)"
+                class="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
                 📄 Ver detalles
               </button>
             </div>
@@ -206,7 +222,7 @@
             <span class="text-amber-600">📧</span>
             <div>
               <p class="font-medium">Email de soporte</p>
-              <p class="text-sm">soporte@coffeestore.com</p>
+              <p class="text-sm">soporte@credenzza.com</p>
             </div>
           </div>
           <div class="flex items-start gap-3">
@@ -218,8 +234,5 @@
           </div>
         </div>
       </div>
-
     </div>
-
   </div>
-</section>

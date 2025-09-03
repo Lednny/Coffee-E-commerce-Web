@@ -51,9 +51,26 @@ export class Contacto implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    // Aquí se implementaría la lógica para enviar el formulario
-    console.log('Formulario enviado:', this.contactForm);
-    alert('¡Gracias por contactarnos! Te responderemos pronto.');
+    // Validar que los campos requeridos estén llenos
+    if (!this.contactForm.nombre || !this.contactForm.email || !this.contactForm.asunto || !this.contactForm.mensaje) {
+      alert('Por favor, completa todos los campos requeridos.');
+      return;
+    }
+
+    // Crear el mensaje para WhatsApp
+    const mensaje = this.crearMensajeWhatsApp();
+    
+    // Número de WhatsApp
+    const numeroWhatsApp = '529932167872'; 
+    
+    // Crear URL de WhatsApp
+    const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+    
+    // Abrir WhatsApp en una nueva ventana
+    window.open(urlWhatsApp, '_blank');
+    
+    // Mostrar mensaje de confirmación
+    alert('¡Gracias por contactarnos! Te hemos redirigido a WhatsApp para enviar tu mensaje.');
     
     // Resetear el formulario
     this.contactForm = {
@@ -63,5 +80,29 @@ export class Contacto implements OnInit, OnDestroy {
       asunto: '',
       mensaje: ''
     };
+  }
+
+  private crearMensajeWhatsApp(): string {
+    const fecha = new Date().toLocaleDateString('es-MX');
+    const hora = new Date().toLocaleTimeString('es-MX');
+    
+return ` *NUEVO CONTACTO - CREDENZZA* 
+
+*Fecha:* ${fecha}
+*Hora:* ${hora}
+
+*Datos del Cliente:*
+• *Nombre:* ${this.contactForm.nombre}
+• *Email:* ${this.contactForm.email}
+• *Teléfono:* ${this.contactForm.telefono || 'No proporcionado'}
+
+*Consulta:*
+• *Asunto:* ${this.contactForm.asunto}
+
+*Mensaje:*
+${this.contactForm.mensaje}
+
+---
+_Mensaje enviado desde la web de Credenzza_`;
   }
 }
