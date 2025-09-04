@@ -70,6 +70,18 @@ export const routes: Routes = [
         path: 'configuration',
         loadComponent: () => import('./features/configuration/configuration').then(m => m.Configuration),
         data: { animation: 'ConfigurationPage' }
+    },
+    
+    // Rutas de pago
+    {
+        path: 'payment-success',
+        loadComponent: () => import('./features/payment-success/payment-success').then(m => m.PaymentSuccess),
+        data: { animation: 'PaymentSuccessPage' }
+    },
+    {
+        path: 'payment-cancel',
+        loadComponent: () => import('./features/payment-cancel/payment-cancel').then(m => m.PaymentCancel),
+        data: { animation: 'PaymentCancelPage' }
     }
     
     // Comentado hasta que existan los módulos

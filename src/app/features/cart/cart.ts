@@ -1,5 +1,6 @@
 import { AuthService } from '../auth/data-access/auth.service';
 import { ProfileService } from '../../core/services/profile.service';
+import { BackendService } from '../../core/services/backend.service';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +10,7 @@ import { OrderService } from '../../core/services/order.service';
 import { StripeService } from '../../core/services/stripe.service';
 import { Cart as CartModel } from '../../shared/models/cart.interface';
 import { CartItem } from '../../shared/models/cart-item.interface';
+import { AddressDTO } from '../../shared/models/address.interface';
 import { Observable, Subscription } from 'rxjs';
 
 @Component({
@@ -23,7 +25,7 @@ export class Cart implements OnInit, OnDestroy {
   isLoading = false;
   isProcessing = false;
   selectedAddressId: number | null = null;
-  addresses: any[] = [];
+  addresses: AddressDTO[] = [];
   private subscription = new Subscription();
 
   constructor(
@@ -31,7 +33,8 @@ export class Cart implements OnInit, OnDestroy {
     private orderService: OrderService,
     private stripeService: StripeService,
     private authService: AuthService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private backendService: BackendService
   ) {
     this.cart$ = this.cartService.cart$;
   }
@@ -119,20 +122,32 @@ export class Cart implements OnInit, OnDestroy {
 
   // Cargar direcciones del usuario
   loadUserAddresses(): void {
-    // Temporal: direcciones de ejemplo hasta que tengas el AddressService
-    this.addresses = [
-      { id: 1, name: 'Casa', address: 'Calle Principal 123, Medellín, Colombia' },
-      { id: 2, name: 'Trabajo', address: 'Av. Comercial 456, Medellín, Colombia' },
-      { id: 3, name: 'Otro', address: 'Carrera 15 #28-34, Medellín, Colombia' }
-    ];
-    
-    // Seleccionar la primera dirección por defecto
-    if (this.addresses.length > 0) {
-      this.selectedAddressId = this.addresses[0].id;
-    }
-    
-    console.log('Direcciones cargadas:', this.addresses);
-    console.log('Dirección seleccionada por defecto:', this.selectedAddressId);
+    this.isLoading = true;
+    this.backendService.getUserAddresses().subscribe({
+      next: (addresses) => {
+        this.addresses = addresses;
+        this.isLoading = false;
+        
+        // Seleccionar la primera dirección por defecto
+        if (this.addresses.length > 0 && this.addresses[0].id) {
+          this.selectedAddressId = this.addresses[0].id;
+        }
+        
+        console.log('Direcciones cargadas:', this.addresses);
+        console.log('Dirección seleccionada por defecto:', this.selectedAddressId);
+      },
+      error: (error) => {
+        console.error('Error cargando direcciones:', error);
+        this.isLoading = false;
+        
+        // Si hay error, mostrar mensaje al usuario
+        if (error.status === 401) {
+          alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+        } else {
+          console.warn('No se pudieron cargar las direcciones. El usuario deberá agregar una dirección.');
+        }
+      }
+    });
   }
 
   // Seleccionar dirección
@@ -141,14 +156,30 @@ export class Cart implements OnInit, OnDestroy {
     console.log('Nueva dirección seleccionada:', addressId);
   }
 
+  // Refrescar direcciones (útil si vienen de configuración)
+  refreshAddresses(): void {
+    this.loadUserAddresses();
+  }
+
+  // Obtener dirección completa para mostrar
+  getAddressDisplay(address: AddressDTO): string {
+    return `${address.street}, ${address.city}, ${address.state}, ${address.country}`;
+  }
+
   // Proceso completo de checkout
 async processCheckout() {
     console.log('=== INICIANDO CHECKOUT ===');
     console.log('AddressId seleccionado:', this.selectedAddressId);
     console.log('Direcciones disponibles:', this.addresses);
     
+    // Validar que haya direcciones disponibles
+    if (this.addresses.length === 0) {
+        alert('No tienes direcciones registradas. Por favor, ve a Configuración para agregar una dirección.');
+        return;
+    }
+    
     if (!this.selectedAddressId) {
-        alert('Por favor selecciona una dirección');
+        alert('Por favor selecciona una dirección de entrega');
         return;
     }
 
@@ -169,7 +200,7 @@ async processCheckout() {
         console.log('Enviando petición de orden...');
         console.log('URL que se va a llamar:', `http://localhost:8080/api/orders/create?addressId=${this.selectedAddressId}`);
         
-        // Crear la orden
+        // Crear la orden usando OrderService
         const order = await this.orderService.createOrder(this.selectedAddressId).toPromise();
         
         if (!order) {
@@ -180,9 +211,9 @@ async processCheckout() {
         console.log('Creando sesión de Stripe...');
         const checkoutSession = await this.stripeService.createCheckoutSession(order.id).toPromise();
         
-        if (checkoutSession?.url) {
-            console.log('✅ Redirigiendo a Stripe:', checkoutSession.url);
-            window.location.href = checkoutSession.url;
+        if (checkoutSession?.checkoutUrl) {
+            console.log('✅ Redirigiendo a Stripe:', checkoutSession.checkoutUrl);
+            window.location.href = checkoutSession.checkoutUrl;
         } else {
             throw new Error('No se pudo obtener la URL de pago');
         }

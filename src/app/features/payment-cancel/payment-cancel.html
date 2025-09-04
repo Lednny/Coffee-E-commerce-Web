@@ -1,0 +1,70 @@
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-orange-600 to-red-900 py-16 sm:py-28">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center text-white">
+      <div class="text-6xl mb-6">🚫</div>
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+        Pago Cancelado
+      </h1>
+      <p class="text-lg sm:text-xl max-w-2xl mx-auto">
+        Has cancelado el proceso de pago. Tu carrito permanece intacto.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Content Section -->
+<section class="py-12 sm:py-16 lg:py-20 bg-white">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl text-center">
+    
+    <!-- Cancel Message -->
+    <div class="bg-orange-50 border border-orange-200 rounded-2xl p-8 mb-8">
+      <h2 class="text-2xl font-bold text-orange-800 mb-4">
+        💭 ¿Cambiaste de opinión?
+      </h2>
+      <div class="space-y-3 text-orange-700">
+        <p>No te preocupes, tu carrito sigue disponible</p>
+        <p>Puedes continuar comprando o finalizar tu pedido cuando estés listo</p>
+        <p>Todos tus productos seleccionados están guardados</p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center mb-8">
+      <button 
+        (click)="goToCart()"
+        class="w-full sm:w-auto bg-amber-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-amber-800 transition-colors">
+        🛒 Volver al Carrito
+      </button>
+      <button 
+        (click)="continueShopping()"
+        class="w-full sm:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+        🛍️ Seguir Comprando
+      </button>
+      <button 
+        (click)="goToHome()"
+        class="w-full sm:w-auto border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+        🏠 Ir al Inicio
+      </button>
+    </div>
+
+    <!-- Auto redirect info -->
+    <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <p class="text-sm text-blue-700">
+        ℹ️ Serás redirigido automáticamente al carrito en {{ countdown }} segundo{{ countdown !== 1 ? 's' : '' }}
+      </p>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="mt-8 p-6 bg-gray-50 rounded-xl">
+      <h3 class="text-lg font-semibold text-gray-800 mb-3">💡 Consejos útiles:</h3>
+      <ul class="text-left text-gray-600 space-y-2">
+        <li>• Tus productos permanecen en el carrito</li>
+        <li>• Puedes modificar cantidades antes de pagar</li>
+        <li>• Verifica que la dirección de entrega sea correcta</li>
+        <li>• Asegúrate de tener fondos suficientes en tu tarjeta</li>
+      </ul>
+    </div>
+
+  </div>
+</section>

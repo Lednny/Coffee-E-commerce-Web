@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface CheckoutSession {
-    url: string;
+    checkoutUrl: string;
     sessionId: string;
 }
 
@@ -16,11 +16,19 @@ export class StripeService {
     constructor(private http: HttpClient) {}
 
   // Crear sesión de checkout
-    createCheckoutSession(orderId: number): Observable<CheckoutSession> {
-    const params = new HttpParams().set('orderId', orderId.toString());
+createCheckoutSession(orderId: number): Observable<CheckoutSession> {
+    // URLs de redirección
+    const baseUrl = window.location.origin;
+    const successUrl = `${baseUrl}/payment-success`;
+    const cancelUrl = `${baseUrl}/payment-cancel`;
+    
+    const params = new HttpParams()
+        .set('orderId', orderId.toString())
+        .set('successUrl', successUrl)
+        .set('cancelUrl', cancelUrl);
     
     return this.http.post<CheckoutSession>(`${this.apiUrl}/checkout-session`, {}, {
-    params: params
+        params: params
     });
 }
 
