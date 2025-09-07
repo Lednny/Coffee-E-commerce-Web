@@ -80,11 +80,11 @@
 
     <!-- Product Detail Modal -->
 <div *ngIf="showProductModal && selectedProduct" 
-     class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-     (click)="closeProductModal()">
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      (click)="closeProductModal()">
   
   <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" 
-       (click)="$event.stopPropagation()">
+        (click)="$event.stopPropagation()">
     
     <!-- Modal Header -->
     <div class="relative">

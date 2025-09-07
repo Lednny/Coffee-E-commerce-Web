@@ -51,19 +51,12 @@
               {{ currentUser?.email || 'No disponible' }}
             </p>
           </div>
-          
-          <div *ngIf="currentUser?.role">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Rol</label>
-            <div class="bg-amber-100 text-amber-800 p-3 rounded-lg font-medium">
-              {{ currentUser?.role }}
-            </div>
-          </div>
         </div>
 
         <!-- Profile Actions -->
         <div class="space-y-4">
           <div class="bg-amber-50 p-4 rounded-lg">
-            <h3 class="font-semibold text-amber-800 mb-2">👤 Gestión de Perfil</h3>
+            <h3 class="font-semibold text-amber-800 mb-2">Gestión de Perfil</h3>
             <p class="text-sm text-amber-700 mb-4">
               Administra tu información personal y credenciales de acceso.
             </p>
@@ -73,7 +66,7 @@
                 *ngIf="!isEditingProfile"
                 (click)="startEditingProfile()"
                 class="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-700 transition-colors">
-                ✏️ Editar Perfil
+                Editar Perfil
               </button>
               
               <div *ngIf="isEditingProfile" class="flex gap-2">
@@ -279,13 +272,13 @@
                 (click)="editAddress(address)"
                 class="text-blue-600 hover:text-blue-800 text-sm font-medium"
                 [disabled]="loading">
-                ✏️ Editar
+                Editar
               </button>
               <button 
                 (click)="deleteAddress(address.id!)"
                 class="text-red-600 hover:text-red-800 text-sm font-medium"
                 [disabled]="loading">
-                🗑️ Eliminar
+                Eliminar
               </button>
             </div>
           </div>
@@ -430,14 +423,14 @@
             (click)="saveSettings()"
             [disabled]="settingsLoading || !hasSettingsChanges()"
             class="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
-            <span *ngIf="!settingsLoading">💾 Guardar Configuraciones</span>
+            <span *ngIf="!settingsLoading">Guardar Configuraciones</span>
             <span *ngIf="settingsLoading">Guardando...</span>
           </button>
         </div>
 
         <!-- Reset Settings -->
         <div class="bg-orange-50 p-4 rounded-lg">
-          <h3 class="font-semibold text-orange-800 mb-2">🔄 Restaurar</h3>
+          <h3 class="font-semibold text-orange-800 mb-2">Restaurar</h3>
           <p class="text-sm text-orange-700 mb-4">
             Restaura las configuraciones a los valores predeterminados.
           </p>
@@ -446,38 +439,6 @@
             [disabled]="settingsLoading"
             class="w-full bg-orange-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
             🔄 Restaurar Configuraciones
-          </button>
-        </div>
-
-        <!-- Export Settings -->
-        <div class="bg-blue-50 p-4 rounded-lg">
-          <h3 class="font-semibold text-blue-800 mb-2">📤 Exportar</h3>
-          <p class="text-sm text-blue-700 mb-4">
-            Descarga tus configuraciones como archivo JSON.
-          </p>
-          <button 
-            (click)="exportSettings()"
-            class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-            📤 Exportar Configuraciones
-          </button>
-        </div>
-
-        <!-- Import Settings -->
-        <div class="bg-purple-50 p-4 rounded-lg">
-          <h3 class="font-semibold text-purple-800 mb-2">📥 Importar</h3>
-          <p class="text-sm text-purple-700 mb-4">
-            Carga configuraciones desde un archivo JSON.
-          </p>
-          <input 
-            type="file" 
-            accept=".json"
-            (change)="importSettings($event)"
-            class="hidden" 
-            #fileInput>
-          <button 
-            (click)="fileInput.click()"
-            class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
-            📥 Importar Configuraciones
           </button>
         </div>
       </div>

@@ -5,7 +5,6 @@ import { Subscription } from 'rxjs';
 import { AuthService } from '../../features/auth/data-access/auth.service';
 import { OrderService, OrderDTO } from '../../core/services/order.service';
 import { Navbar } from '../../core/components/navbar/navbar';
-import { Footer } from '../../core/components/footer/footer';
 
 export interface Order {
   id: string;

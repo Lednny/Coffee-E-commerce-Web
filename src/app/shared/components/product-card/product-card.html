@@ -54,7 +54,6 @@
         {{ tag }}
       </span>
     </div>
-
     <!-- Peso (si está disponible) -->
     <p *ngIf="product.weight" class="text-xs text-gray-500 mb-3">Peso: {{ product.weight }}</p>
 
@@ -62,7 +61,10 @@
     <div class="flex justify-between items-end">
       <div class="flex flex-col">
         <span class="text-xl sm:text-2xl font-bold text-amber-700">
-          ${{ product.price.toLocaleString() }}
+          {{ getFormattedPrice() }}
+        </span>
+        <span *ngIf="selectedPresentation" class="text-xs text-gray-500">
+          {{ selectedPresentation }}
         </span>
         <span [class.text-green-600]="isInStock()" 
               [class.text-red-500]="!isInStock()"

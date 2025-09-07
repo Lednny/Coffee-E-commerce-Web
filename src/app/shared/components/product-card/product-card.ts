@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product } from '../../models/product.model';
 import { CartService } from '../../../core/services/cart.service';
@@ -12,7 +12,7 @@ import { ProductPresentation } from '../../models/product.model';
   templateUrl: './product-card.html',
   styleUrl: './product-card.css'
 })
-export class ProductCard {
+export class ProductCard implements OnInit, OnDestroy {
   @Input() product!: Product;
   @Input() animationDelay: string = '';
   @Output() viewMore = new EventEmitter<Product>();
@@ -25,8 +25,50 @@ export class ProductCard {
 
   // Recarga de las imágenes
   imageLoaded = false;
+  imageError = false;
+  retryCount = 0;
+  maxRetries = 3;
 
   constructor(private cartService: CartService, private backendService: BackendService) {}
+
+  ngOnInit() {
+    this.initializePresentations();
+    this.preloadImage();
+  }
+
+  ngOnDestroy() {
+    // Cleanup si es necesario
+  }
+
+  // Precargar imagen para mejor rendimiento
+  private preloadImage(): void {
+    if (this.product.imageUrl) {
+      const img = new Image();
+      img.onload = () => {
+        this.imageLoaded = true;
+        this.imageError = false;
+      };
+      img.onerror = () => {
+        this.handleImageError();
+      };
+      img.src = this.product.imageUrl;
+    } else {
+      this.imageError = true;
+    }
+  }
+
+  private handleImageError(): void {
+    this.retryCount++;
+    if (this.retryCount < this.maxRetries) {
+      // Intentar de nuevo después de un delay
+      setTimeout(() => {
+        this.preloadImage();
+      }, 1000 * this.retryCount);
+    } else {
+      this.imageError = true;
+      this.imageLoaded = true; // Para mostrar el placeholder
+    }
+  }
 
   getCategoryName(categoryId: number): string {
     const categoryNames: { [key: number]: string } = {
@@ -75,11 +117,20 @@ export class ProductCard {
 
   onImageLoad(): void {
     this.imageLoaded = true;
+    this.imageError = false;
   }
 
   onImageError(event: any): void {
-    console.error('Error loading image for product:', this.product.name);
-    this.imageLoaded = true;
+    console.error('Error loading image for product:', this.product.name, event);
+    this.handleImageError();
+  }
+
+  // Obtener URL de imagen con fallback
+  getImageUrl(): string {
+    if (this.imageError) {
+      return '/assets/images/placeholder-product.jpg';
+    }
+    return this.product.imageUrl || '/assets/images/placeholder-product.jpg';
   }
 
   private initializePresentations() {
@@ -90,20 +141,28 @@ export class ProductCard {
         price
       }));
       // Seleccionar la primera presentación por defecto
-      this.selectedPresentation = this.availablePresentations[0].name;
-      this.currentPrice = this.availablePresentations[0].price;
+      if (this.availablePresentations.length > 0) {
+        this.selectedPresentation = this.availablePresentations[0].name;
+        this.currentPrice = this.availablePresentations[0].price;
+      }
     } else {
       // No tiene presentaciones, usar precio base
-      this.currentPrice = this.product.price;
+      this.currentPrice = this.product.price || 0;
+      this.availablePresentations = [];
     }
   }
 
-    onPresentationChange(presentationName: string) {
+  onPresentationChange(presentationName: string) {
     this.selectedPresentation = presentationName;
     const selectedPres = this.availablePresentations.find(p => p.name === presentationName);
     if (selectedPres) {
       this.currentPrice = selectedPres.price;
     }
+  }
+
+  // Obtener precio formateado
+  getFormattedPrice(): string {
+    return `$${(this.currentPrice || this.product.price || 0).toLocaleString()}`;
   }
 
   

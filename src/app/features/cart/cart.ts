@@ -32,8 +32,6 @@ export class Cart implements OnInit, OnDestroy {
     private cartService: CartService,
     private orderService: OrderService,
     private stripeService: StripeService,
-    private authService: AuthService,
-    private profileService: ProfileService,
     private backendService: BackendService
   ) {
     this.cart$ = this.cartService.cart$;
