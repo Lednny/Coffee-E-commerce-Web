@@ -1,14 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap, catchError, throwError } from 'rxjs';
 
 export interface OrderItemDTO {
     id: number;
     productId: number;
     productName: string;
     quantity: number;
-    unitPrice: number;
-    subtotal: number;
+    price: number; // El backend envía 'price' no 'unitPrice'
+    subtotal?: number; // Puede no estar presente
+    // Campos adicionales que podríamos necesitar
+    productDescription?: string;
+    productImageUrl?: string;
+    productCategory?: string;
 }
 
 export interface PaymentDTO{
@@ -43,6 +47,7 @@ export class OrderService {
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
+    
     return new HttpHeaders({
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` })
@@ -78,7 +83,15 @@ return this.http.post<any>(`${this.apiUrl}/checkout`, {}, {
   getUserOrders(): Observable<OrderDTO[]> {
     return this.http.get<OrderDTO[]>(this.apiUrl, {
       headers: this.getAuthHeaders()
-    });
+    }).pipe(
+      tap(orders => {
+        console.log('Orders loaded:', orders?.length || 0);
+      }),
+      catchError(error => {
+        console.error('Error loading orders:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   // Obtener orden por ID

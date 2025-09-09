@@ -1,29 +1,13 @@
 import { Component, OnInit, HostListener, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { AuthService } from '../../features/auth/data-access/auth.service';
-import { OrderService, OrderDTO } from '../../core/services/order.service';
+import { OrderService, OrderDTO, OrderItemDTO} from '../../core/services/order.service';
+import { BackendService } from '../../core/services/backend.service';
+import { Product } from '../../shared/models/product.model';
 import { Navbar } from '../../core/components/navbar/navbar';
 
-export interface Order {
-  id: string;
-  date: Date;
-  status: 'pendiente' | 'procesando' | 'enviado' | 'entregado' | 'cancelado';
-  total: number;
-  items: OrderItem[];
-  shippingAddress: string;
-  trackingNumber?: string;
-}
-
-export interface OrderItem {
-  productId: string;
-  productName: string;
-  productImage: string;
-  quantity: number;
-  price: number;
-  total: number;
-}
 
 @Component({
   selector: 'app-orders',
@@ -35,14 +19,19 @@ export interface OrderItem {
 export class Orders implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private orderService = inject(OrderService);
-  
+  private backendService = inject(BackendService);
+
   orders: OrderDTO[] = [];
+  orderItems: OrderItemDTO[] = [];
   filteredOrders: OrderDTO[] = [];
   selectedStatus: string = 'todos';
   scrollAnimateElements!: NodeListOf<Element>;
   isAuthenticated = false;
   isLoading = false;
   private authSubscription?: Subscription;
+  
+  // Mapa para almacenar información completa de productos
+  productCache: Map<number, Product> = new Map();
 
   ngOnInit() {
     // Verificar autenticación
@@ -51,12 +40,16 @@ export class Orders implements OnInit, OnDestroy {
         this.isAuthenticated = isAuth;
         if (isAuth) {
           this.loadOrders();
+        } else {
+          this.orders = [];
+          this.filteredOrders = [];
         }
       }
     );
 
     // También verificar estado inicial
     this.isAuthenticated = this.authService.isAuthenticated();
+    
     if (this.isAuthenticated) {
       this.loadOrders();
     }
@@ -74,112 +67,96 @@ export class Orders implements OnInit, OnDestroy {
   }
 
   loadOrders() {
-    if (!this.isAuthenticated) return;
+    if (!this.isAuthenticated) {
+      return;
+    }
     
     this.isLoading = true;
     
-    // Usar el OrderService para obtener las órdenes del usuario
     this.orderService.getUserOrders().subscribe({
       next: (orders) => {
+        console.log('Orders loaded:', orders?.length || 0);
+        if (orders && orders.length > 0) {
+          console.log('First order items:', orders[0].items);
+          console.log('Sample item:', orders[0].items?.[0]);
+        }
         this.orders = orders;
-        this.filterOrders();
-        this.isLoading = false;
+        this.loadProductDetails(orders);
       },
       error: (error) => {
         console.error('Error loading orders:', error);
+        this.orders = [];
+        this.filteredOrders = [];
         this.isLoading = false;
-        // Fallback a datos de ejemplo en caso de error
-        this.loadSampleOrders();
       }
     });
   }
 
-  loadSampleOrders() {
-    // Datos de ejemplo que coinciden con OrderDTO
-    this.orders = [
-      {
-        id: 1,
-        userId: 'user123',
-        userOrderNumber: 1001,
-        firstProductName: 'Mesa de Comedor Premium',
-        productsDescription: 'Mesa de comedor de madera + Sillas',
-        createdAt: '2025-08-15T10:30:00Z',
-        status: 'DELIVERED',
-        total: 895000,
-        payment: {
-          id: 1,
-          mount: 895000,
-          urrency: 'COP',
-          tatus: 'COMPLETED',
-          stripePaymentIntentId: 'pi_test_123',
-          createdAt: '2025-08-15T10:35:00Z'
-        },
-        items: [
-          {
-            id: 1,
-            productId: 1,
-            productName: 'Mesa de Comedor Premium',
-            quantity: 1,
-            unitPrice: 650000,
-            subtotal: 650000
-          },
-          {
-            id: 2,
-            productId: 2,
-            productName: 'Juego de 4 Sillas',
-            quantity: 1,
-            unitPrice: 245000,
-            subtotal: 245000
+  // Cargar detalles completos de productos para todas las órdenes
+  loadProductDetails(orders: OrderDTO[]) {
+    if (!orders || orders.length === 0) {
+      this.filterOrders();
+      this.isLoading = false;
+      return;
+    }
+
+    // Recopilar todos los productIds únicos
+    const productIds = new Set<number>();
+    orders.forEach(order => {
+      order.items?.forEach(item => {
+        if (item.productId && !this.productCache.has(item.productId)) {
+          productIds.add(item.productId);
+        }
+      });
+    });
+
+    if (productIds.size === 0) {
+      this.filterOrders();
+      this.isLoading = false;
+      return;
+    }
+
+    // Cargar información de productos en paralelo
+    const productRequests = Array.from(productIds).map(id => 
+      this.backendService.getProductById(id)
+    );
+
+    forkJoin(productRequests).subscribe({
+      next: (products) => {
+        // Guardar productos en cache
+        products.forEach(product => {
+          if (product && product.id) {
+            this.productCache.set(product.id, product);
           }
-        ]
+        });
+        
+        this.filterOrders();
+        this.isLoading = false;
       },
-      {
-        id: 2,
-        userId: 'user123',
-        userOrderNumber: 1002,
-        firstProductName: 'Sofá Moderno',
-        productsDescription: 'Sofá de 3 puestos',
-        createdAt: '2025-08-18T14:20:00Z',
-        status: 'PROCESSING',
-        total: 1250000,
-        payment: {
-          id: 2,
-          mount: 1250000,
-          urrency: 'COP',
-          tatus: 'COMPLETED',
-          stripePaymentIntentId: 'pi_test_456',
-          createdAt: '2025-08-18T14:25:00Z'
-        },
-        items: [
-          {
-            id: 3,
-            productId: 3,
-            productName: 'Sofá Moderno 3 Puestos',
-            quantity: 1,
-            unitPrice: 1250000,
-            subtotal: 1250000
-          }
-        ]
+      error: (error) => {
+        console.error('Error loading product details:', error);
+        // Continuar sin detalles de producto
+        this.filterOrders();
+        this.isLoading = false;
       }
-    ];
-    
-    this.filterOrders();
+    });
   }
 
   filterOrders() {
     if (this.selectedStatus === 'todos') {
       this.filteredOrders = [...this.orders];
     } else {
-      // Mapear los estados del OrderService a los estados locales
+      // Mapear los estados del frontend a los estados del backend
       const statusMap: { [key: string]: string } = {
         'pendiente': 'PENDING',
-        'procesando': 'PROCESSING',
+        'procesando': 'PROCESSING', 
         'enviado': 'SHIPPED',
         'entregado': 'DELIVERED',
         'cancelado': 'CANCELLED'
       };
       
       const backendStatus = statusMap[this.selectedStatus];
+      
       if (backendStatus) {
         this.filteredOrders = this.orders.filter(order => order.status === backendStatus);
       } else {
@@ -226,6 +203,49 @@ export class Orders implements OnInit, OnDestroy {
     return this.orderService.getTotalItems(order);
   }
 
+  // Helper methods para manejar valores undefined
+  safeUnitPrice(item: OrderItemDTO): number {
+    return item?.price || 0; // Usar 'price' en lugar de 'unitPrice'
+  }
+
+  safeSubtotal(item: OrderItemDTO): number {
+    // Calcular subtotal si no está presente
+    return item?.subtotal || (item?.price * item?.quantity) || 0;
+  }
+
+  safeQuantity(item: OrderItemDTO): number {
+    return item?.quantity || 0;
+  }
+
+  safeProductName(item: OrderItemDTO): string {
+    return item?.productName || 'Producto sin nombre';
+  }
+
+  // Método para obtener imagen del producto (placeholder por ahora)
+  getProductImage(item: OrderItemDTO): string {
+    const product = this.productCache.get(item.productId);
+    return product?.imageUrl || '/assets/images/product-placeholder.png';
+  }
+
+  // Método para obtener descripción del producto
+  getProductDescription(item: OrderItemDTO): string {
+    const product = this.productCache.get(item.productId);
+    return product?.description || item.productName || 'Sin descripción';
+  }
+
+  // Método para obtener categoría del producto
+  getProductCategory(item: OrderItemDTO): string {
+    const product = this.productCache.get(item.productId);
+    return product?.category?.name || 'Sin categoría';
+  }
+
+  // Manejo de error de imagen
+  onImageError(event: any) {
+    if (event.target) {
+      event.target.src = '/assets/images/product-placeholder.png';
+    }
+  }
+
   reorderItems(order: OrderDTO) {
     // Implementar funcionalidad de re-ordenar usando el OrderService
     if (confirm(`¿Quieres volver a pedir los productos del pedido #${order.userOrderNumber}?`)) {
@@ -244,8 +264,17 @@ export class Orders implements OnInit, OnDestroy {
   }
 
   viewOrderDetails(order: OrderDTO) {
-    // Implementar vista detallada de la orden
-    console.log('Order details:', order);
+    console.log('Detalles de la orden:', {
+      id: order.id,
+      userOrderNumber: order.userOrderNumber,
+      status: order.status,
+      total: order.total,
+      itemsCount: order.items?.length || 0,
+      createdAt: order.createdAt,
+      items: order.items
+    });
+    
+    // Aquí puedes implementar un modal o navegación a página de detalles
     alert(`Ver detalles del pedido #${order.userOrderNumber} (próximamente)`);
   }
 
