@@ -2,7 +2,7 @@
 <app-navbar></app-navbar>
 
 <!-- Hero Section -->
-<section class="bg-gradient-to-br from-gray-600 to-gray-900 py-12 sm:py-28 pt-20 sm:pt-24">
+<section class="bg-gradient-to-br from-gray-600 to-gray-900 py-12 sm:py-20 pt-20 sm:pt-24">
   <div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center scroll-animate top-6">
       <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
@@ -35,18 +35,21 @@
     <!-- Authenticated Content -->
     <div *ngIf="isAuthenticated">
       
-      <!-- Loading State -->
-      <div *ngIf="isLoading" class="text-center py-16 scroll-animate">
-        <div class="text-gray-400 text-8xl mb-6">⏳</div>
-        <h3 class="text-2xl font-semibold text-gray-700 mb-4">Cargando tus pedidos...</h3>
-        <p class="text-gray-600">Por favor espera un momento</p>
+      <!-- Header with refresh button -->
+      <div class="flex justify-between items-center mb-6 scroll-animate">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">
+          MIS PEDIDOS
+        </h2>
+        <button 
+          (click)="refreshOrders()"
+          [disabled]="isLoading"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          🔄 Actualizar
+        </button>
       </div>
-
-      <!-- Content when not loading -->
-      <div *ngIf="!isLoading">
-        
-        <!-- Filter Buttons -->
-      <div class="flex flex-wrap gap-3 mb-8 scroll-animate">
+      
+      <!-- Filter Buttons -->
+      <div class="flex flex-wrap gap-3 mb-3 scroll-animate">
         <button 
           (click)="onStatusFilter('todos')"
           [class.bg-amber-700]="selectedStatus === 'todos'"
@@ -99,110 +102,108 @@
       </div>
 
       <!-- Orders Header -->
-      <div class="flex justify-between items-center mb-6 scroll-animate">
-        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">
+      <div class="flex justify-between items-center mb-2 scroll-animate">
+        <h3 class="text-xl font-semibold text-gray-700">
           {{ selectedStatus === 'todos' ? 'Todos los pedidos' : 'Pedidos ' + selectedStatus + 's' }} 
           ({{ filteredOrders.length }})
-        </h2>
+        </h3>
+      </div>
+      
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="text-center py-16 scroll-animate">
+        <div class="text-gray-400 text-8xl mb-6">⏳</div>
+        <h3 class="text-2xl font-semibold text-gray-700 mb-4">Cargando tus pedidos...</h3>
+        <p class="text-gray-600">Por favor espera un momento</p>
       </div>
 
-      <!-- Empty State -->
-      <div *ngIf="filteredOrders.length === 0" class="text-center py-16 scroll-animate">
+      <!-- Empty State - No Orders Found -->
+      <div *ngIf="hasNoOrders" class="text-center py-16 scroll-animate">
         <div class="text-gray-400 text-8xl mb-6">📦</div>
         <h3 class="text-2xl font-semibold text-gray-700 mb-4">No tienes pedidos aún</h3>
         <p class="text-gray-600 mb-8 max-w-md mx-auto">
-          Explora nuestros productos y realiza tu primera compra
+          Explora nuestros productos y realiza tu primera compra para ver tus pedidos aquí
         </p>
-        <a routerLink="/products" 
-           class="inline-block bg-amber-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-amber-800 transition-colors">
-          🛍️ Explorar Productos
-        </a>
+        <div class="flex justify-center">
+          <a routerLink="/products" 
+            class="inline-block bg-amber-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-amber-800 transition-colors">
+            Explorar Productos
+          </a>
+        </div>
       </div>
 
       <!-- Orders List -->
-      <div *ngIf="filteredOrders.length > 0" class="space-y-6">
+      <div *ngIf="!isLoading && filteredOrders && filteredOrders.length > 0" class="space-y-6">
         <div *ngFor="let order of filteredOrders" 
-             class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow scroll-animate">
+            class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
           
           <!-- Order Header -->
-          <div class="p-4 sm:p-6 border-b border-gray-100">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h3 class="text-lg font-semibold text-gray-800">Pedido #{{ order.userOrderNumber }}</h3>
-                <p class="text-sm text-gray-600">{{ formatOrderDate(order.createdAt) }}</p>
-                <p class="text-sm text-gray-500">{{ order.firstProductName }}</p>
-              </div>
-              
-              <div class="flex items-center gap-3">
-                <span [class]="getStatusColor(order.status)" 
-                      class="px-3 py-1 rounded-full text-sm font-semibold">
-                  {{ getStatusText(order.status) }}
-                </span>
-                <span class="text-lg font-bold text-amber-700">
-                  ${{ getOrderTotal(order).toLocaleString() }}
-                </span>
-              </div>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-800">Pedido #{{ order.userOrderNumber }}</h3>
+              <p class="text-sm text-gray-600">{{ order.createdAt | date:'medium' }}</p>
+              <p class="text-sm text-gray-500">{{ order.firstProductName || 'Múltiples productos' }}</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+              <span class="px-3 py-1 rounded-full text-sm font-semibold"
+                    [class]="order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 
+                            order.status === 'PROCESSING' ? 'bg-blue-100 text-blue-800' :
+                            order.status === 'SHIPPED' ? 'bg-purple-100 text-purple-800' :
+                            order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
+                            order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
+                            'bg-gray-100 text-gray-800'">
+                {{ order.status === 'PENDING' ? 'Pendiente' :
+                  order.status === 'PROCESSING' ? 'Procesando' :
+                  order.status === 'SHIPPED' ? 'Enviado' :
+                  order.status === 'DELIVERED' ? 'Entregado' :
+                  order.status === 'CANCELLED' ? 'Cancelado' :
+                  order.status }}
+              </span>
+              <span class="text-lg font-bold text-amber-700">
+                ${{ order.total }}
+              </span>
             </div>
           </div>
 
           <!-- Order Items -->
-          <div class="p-4 sm:p-6">
-            <div class="space-y-3">
-              <div *ngFor="let item of order.items" 
-                   class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                <div class="w-16 h-16 bg-amber-100 rounded-lg flex items-center justify-center overflow-hidden">
-                  <img [src]="getProductImage(item)" 
-                       [alt]="safeProductName(item)"
-                       class="w-full h-full object-cover rounded-lg"
-                       (error)="onImageError($event)">
-                </div>
-                
-                <div class="flex-1 min-w-0">
-                  <h4 class="font-semibold text-gray-800 truncate">{{ safeProductName(item) }}</h4>
-                  <p class="text-xs text-gray-500 truncate">{{ getProductDescription(item) }}</p>
-                  <p class="text-sm text-gray-600">Cantidad: {{ safeQuantity(item) }}</p>
-                  <p class="text-sm text-gray-600">Precio unitario: ${{ safeUnitPrice(item) | number:'1.0-0' }}</p>
-                </div>
-                
-                <div class="text-right">
-                  <p class="font-semibold text-amber-700">${{ safeSubtotal(item) | number:'1.0-0' }}</p>
-                  <p class="text-xs text-gray-500">Subtotal</p>
-                </div>
+          <div class="space-y-3 mb-4">
+            <div *ngFor="let item of order.items" 
+                class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+              <div class="w-16 h-16 bg-amber-100 rounded-lg flex items-center justify-center overflow-hidden">
+                <img *ngIf="getProductImage(item); else noImage" 
+                    [src]="getProductImage(item)" 
+                    [alt]="item.productName"
+                    class="w-full h-full object-cover rounded-lg"
+                    (error)="onImageError($event)">
+                <ng-template #noImage>
+                  <span class="text-amber-600 text-2xl">📦</span>
+                </ng-template>
+              </div>
+              
+              <div class="flex-1 min-w-0">
+                <h4 class="font-semibold text-gray-800 truncate">{{ item.productName || 'Producto' }}</h4>
+                <p class="text-sm text-gray-600">Cantidad: {{ item.quantity }}</p>
+                <p class="text-sm text-gray-600">Precio: ${{ item.price }}</p>
+              </div>
+              
+              <div class="text-right">
+                <p class="font-semibold text-amber-700">${{ (item.price * item.quantity) }}</p>
+                <p class="text-xs text-gray-500">Subtotal</p>
               </div>
             </div>
-
-            <!-- Order Description -->
-            <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-              <h4 class="font-semibold text-gray-800 mb-1">� Descripción del pedido</h4>
-              <p class="text-sm text-gray-600">{{ order.productsDescription }}</p>
-              <p class="text-sm text-blue-600 mt-1">
-                🚚 Total de {{ getTotalItems(order) }} artículos
-              </p>
-            </div>
-
-            <!-- Order Actions -->
-            <div class="flex flex-col sm:flex-row gap-3 mt-4">
-              <button 
-                (click)="reorderItems(order)"
-                class="flex-1 sm:flex-none bg-amber-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-amber-800 transition-colors">
-                🔄 Volver a pedir
-              </button>
-              
-              <button 
-                *ngIf="order.status === 'SHIPPED' || order.status === 'DELIVERED'"
-                (click)="trackOrder(order)"
-                class="flex-1 sm:flex-none bg-blue-100 text-blue-700 px-6 py-2 rounded-lg font-semibold hover:bg-blue-200 transition-colors">
-                📦 Rastrear
-              </button>
-              
-              <button 
-                (click)="viewOrderDetails(order)"
-                class="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
-                📄 Ver detalles
-              </button>
-            </div>
           </div>
+
+          <!-- Order Description -->
+          <div class="p-3 bg-blue-50 rounded-lg mb-4">
+            <h4 class="font-semibold text-gray-800 mb-1">📝 Descripción del pedido</h4>
+            <p class="text-sm text-gray-600">{{ order.productsDescription || 'Sin descripción disponible' }}</p>
+            <p class="text-sm text-blue-600 mt-1">
+              🚚 Total de {{ order.items.length }} artículos
+            </p>
+          </div>
+
         </div>
+      </div>
       </div>
 
       <!-- Support Section -->
@@ -240,4 +241,3 @@
         </div>
       </div>
     </div>
-  </div>

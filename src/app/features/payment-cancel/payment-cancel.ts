@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-payment-cancel',
@@ -9,21 +9,40 @@ import { RouterModule, Router } from '@angular/router';
   templateUrl: './payment-cancel.html',
   styleUrl: './payment-cancel.css'
 })
-export class PaymentCancel implements OnInit {
-  countdown = 5;
+export class PaymentCancel implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-  constructor(private router: Router) {}
+  countdown = 60;
+  orderId: string | null = null;
+  sessionId: string | null = null;
+  loading = false;
+  private countdownInterval: any;
 
   ngOnInit() {
+    // Obtener parámetros de la URL
+    this.route.queryParams.subscribe(params => {
+      this.orderId = params['order_id'] || null;
+      this.sessionId = params['session_id'] || null;
+      
+      console.log('Payment cancelled - Order ID:', this.orderId, 'Session ID:', this.sessionId);
+    });
+
     // Iniciar cuenta regresiva para redirigir automáticamente
     this.startCountdown();
   }
 
+  ngOnDestroy() {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+  }
+
   startCountdown() {
-    const interval = setInterval(() => {
+    this.countdownInterval = setInterval(() => {
       this.countdown--;
       if (this.countdown <= 0) {
-        clearInterval(interval);
+        clearInterval(this.countdownInterval);
         this.goToCart();
       }
     }, 1000);
@@ -39,5 +58,11 @@ export class PaymentCancel implements OnInit {
 
   continueShopping() {
     this.router.navigate(['/products']);
+  }
+
+  cancelCountdown() {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
   }
 }

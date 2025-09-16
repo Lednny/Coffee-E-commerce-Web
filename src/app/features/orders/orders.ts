@@ -1,6 +1,6 @@
-import { Component, OnInit, HostListener, inject, OnDestroy } from '@angular/core';
+import { Component, OnInit, HostListener, inject, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
 import { AuthService } from '../../features/auth/data-access/auth.service';
 import { OrderService, OrderDTO, OrderItemDTO} from '../../core/services/order.service';
@@ -20,6 +20,7 @@ export class Orders implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private orderService = inject(OrderService);
   private backendService = inject(BackendService);
+  private cdr = inject(ChangeDetectorRef);
 
   orders: OrderDTO[] = [];
   orderItems: OrderItemDTO[] = [];
@@ -39,35 +40,49 @@ export class Orders implements OnInit, OnDestroy {
       isAuth => {
         this.isAuthenticated = isAuth;
         if (isAuth) {
-          this.loadOrders();
+          setTimeout(() => this.loadOrders(), 100);
         } else {
           this.orders = [];
           this.filteredOrders = [];
+          this.isLoading = false;
         }
       }
     );
 
-    // También verificar estado inicial
-    this.isAuthenticated = this.authService.isAuthenticated();
+    // También verificar estado inicial SOLO si no se ha verificado ya
+    const initialAuth = this.authService.isAuthenticated();
     
-    if (this.isAuthenticated) {
-      this.loadOrders();
+    if (initialAuth && this.orders.length === 0) {
+      setTimeout(() => this.loadOrders(), 100);
     }
     
     setTimeout(() => {
       this.scrollAnimateElements = document.querySelectorAll('.scroll-animate');
       this.checkScrollAnimations();
     }, 100);
+
+    // Escuchar cambios de visibilidad para recargar cuando el usuario regrese
+    document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
   }
 
   ngOnDestroy() {
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
     }
+    // Remover el listener de visibilidad
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+  }
+
+  // Manejar cuando el usuario regresa a la pestaña
+  handleVisibilityChange() {
+    if (!document.hidden && this.isAuthenticated) {
+      console.log('Usuario regresó a la pestaña, recargando órdenes...');
+      this.loadOrders();
+    }
   }
 
   loadOrders() {
-    if (!this.isAuthenticated) {
+    if (!this.isAuthenticated || this.isLoading) {
       return;
     }
     
@@ -75,26 +90,40 @@ export class Orders implements OnInit, OnDestroy {
     
     this.orderService.getUserOrders().subscribe({
       next: (orders) => {
-        console.log('Orders loaded:', orders?.length || 0);
-        if (orders && orders.length > 0) {
-          console.log('First order items:', orders[0].items);
-          console.log('Sample item:', orders[0].items?.[0]);
-        }
-        this.orders = orders;
-        this.loadProductDetails(orders);
+        this.orders = orders || [];
+        this.loadProductDetails(orders || []);
       },
       error: (error) => {
-        console.error('Error loading orders:', error);
+        console.error('Error cargando órdenes:', error);
         this.orders = [];
         this.filteredOrders = [];
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
+    // Getter para verificar si no hay órdenes
+    get hasNoOrders(): boolean {
+    return this.orders.length === 0;
+  }
+
+  // Método para recargar manualmente
+  refreshOrders() {
+    this.orders = [];
+    this.filteredOrders = [];
+    this.productCache.clear(); // Limpiar cache de productos
+    setTimeout(() => this.loadOrders(), 100);
+  }
+
+
   // Cargar detalles completos de productos para todas las órdenes
   loadProductDetails(orders: OrderDTO[]) {
+    console.log('=== loadProductDetails iniciado ===');
+    console.log('Orders recibidas:', orders?.length || 0);
+    
     if (!orders || orders.length === 0) {
+      console.log('No hay órdenes, aplicando filtros y finalizando carga');
       this.filterOrders();
       this.isLoading = false;
       return;
@@ -110,9 +139,15 @@ export class Orders implements OnInit, OnDestroy {
       });
     });
 
+    console.log('ProductIds únicos encontrados:', Array.from(productIds));
+    console.log('Productos en cache actual:', this.productCache.size);
+
     if (productIds.size === 0) {
+      console.log('No hay productIds nuevos para cargar, aplicando filtros directamente');
       this.filterOrders();
       this.isLoading = false;
+      console.log('isLoading establecido a false. filteredOrders final:', this.filteredOrders);
+      this.cdr.detectChanges();
       return;
     }
 
@@ -132,12 +167,16 @@ export class Orders implements OnInit, OnDestroy {
         
         this.filterOrders();
         this.isLoading = false;
+        console.log('Carga de productos completada. isLoading:', this.isLoading, 'filteredOrders:', this.filteredOrders);
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error loading product details:', error);
         // Continuar sin detalles de producto
         this.filterOrders();
         this.isLoading = false;
+        console.log('Error en carga de productos. isLoading:', this.isLoading, 'filteredOrders:', this.filteredOrders);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -146,7 +185,6 @@ export class Orders implements OnInit, OnDestroy {
     if (this.selectedStatus === 'todos') {
       this.filteredOrders = [...this.orders];
     } else {
-      // Mapear los estados del frontend a los estados del backend
       const statusMap: { [key: string]: string } = {
         'pendiente': 'PENDING',
         'procesando': 'PROCESSING', 
@@ -163,6 +201,8 @@ export class Orders implements OnInit, OnDestroy {
         this.filteredOrders = [...this.orders];
       }
     }
+    
+    this.cdr.detectChanges();
   }
 
   onStatusFilter(status: string) {
@@ -224,7 +264,8 @@ export class Orders implements OnInit, OnDestroy {
   // Método para obtener imagen del producto (placeholder por ahora)
   getProductImage(item: OrderItemDTO): string {
     const product = this.productCache.get(item.productId);
-    return product?.imageUrl || '/assets/images/product-placeholder.png';
+    // Usar una imagen simple o nada si no existe
+    return product?.imageUrl || '';
   }
 
   // Método para obtener descripción del producto
@@ -242,7 +283,8 @@ export class Orders implements OnInit, OnDestroy {
   // Manejo de error de imagen
   onImageError(event: any) {
     if (event.target) {
-      event.target.src = '/assets/images/product-placeholder.png';
+      // Simplemente ocultar la imagen si falla
+      event.target.style.display = 'none';
     }
   }
 

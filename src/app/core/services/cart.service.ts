@@ -28,9 +28,41 @@ export class CartService {
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
+    
+    if (!token) {
+      console.warn('No auth token found for cart request');
+      return new HttpHeaders({
+        'Content-Type': 'application/json'
+      });
+    }
+
+    // Verificar si el token ha expirado
+    try {
+      const tokenParts = token.split('.');
+      if (tokenParts.length === 3) {
+        const payload = JSON.parse(atob(tokenParts[1]));
+        const isExpired = payload.exp < Date.now() / 1000;
+        
+        if (isExpired) {
+          console.warn('Token expired, removing from storage');
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('current_user');
+          return new HttpHeaders({
+            'Content-Type': 'application/json'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing token:', error);
+      localStorage.removeItem('auth_token');
+      return new HttpHeaders({
+        'Content-Type': 'application/json'
+      });
+    }
+
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
+      'Authorization': `Bearer ${token}`
     });
   }
 
@@ -71,10 +103,28 @@ export class CartService {
   }
 
   removeItemFromCart(itemId: number): Observable<Cart> {
+    console.log(`Attempting to remove item ${itemId} from cart`);
     return this.http.delete<Cart>(`${this.apiUrl}/remove/${itemId}`, { 
       headers: this.getAuthHeaders() 
     }).pipe(
-      tap(cart => this.cartSubject.next(cart))
+      tap(cart => {
+        console.log('Item removed successfully, updating cart state:', cart);
+        this.cartSubject.next(cart);
+      }),
+      catchError(error => {
+        console.error('Error removing item from cart:', error);
+        
+        // Si hay error 401, limpiar tokens y recargar carrito
+        if (error.status === 401) {
+          console.log('Unauthorized error - cleaning auth data');
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('current_user');
+        }
+        
+        // Retornar el carrito actual en caso de error para evitar crash
+        const currentCart = this.cartSubject.value;
+        return of(currentCart);
+      })
     );
   }
 
@@ -88,12 +138,29 @@ export class CartService {
 
   // Métodos para el navbar (compatibilidad)
   removeFromCart(itemId: number): void {
+    console.log('Attempting to remove item with ID:', itemId);
+    
+    // Optimistic update: eliminar localmente primero
+    const currentCart = this.cartSubject.value;
+    const updatedItems = currentCart.items.filter(item => item.id !== itemId);
+    const updatedCart = { ...currentCart, items: updatedItems };
+    
+    // Actualizar inmediatamente la UI
+    this.cartSubject.next(updatedCart);
+    console.log('Item removed optimistically from local cart');
+    
+    // Luego sincronizar con el backend
     this.removeItemFromCart(itemId).subscribe({
       next: (cart) => {
-        console.log('Item removed from cart', cart);
+        console.log('Item removed from cart successfully on backend', cart);
+        // Actualizar con la respuesta del backend para mantener consistencia
+        this.cartSubject.next(cart);
       },
       error: (error) => {
-        console.error('Error removing item from cart:', error);
+        console.error('Error removing item from cart on backend:', error);
+        // Si falla, revertir el cambio optimista recargando desde el backend
+        console.log('Reverting optimistic update...');
+        this.loadCart();
       }
     });
   }

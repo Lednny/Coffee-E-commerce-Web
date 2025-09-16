@@ -7,9 +7,8 @@ export interface OrderItemDTO {
     productId: number;
     productName: string;
     quantity: number;
-    price: number; // El backend envía 'price' no 'unitPrice'
-    subtotal?: number; // Puede no estar presente
-    // Campos adicionales que podríamos necesitar
+    price: number;
+    subtotal?: number;
     productDescription?: string;
     productImageUrl?: string;
     productCategory?: string;

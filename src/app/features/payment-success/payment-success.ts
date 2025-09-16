@@ -9,7 +9,7 @@ import { CartService } from '../../core/services/cart.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './payment-success.html',
-  styleUrl: './payment-success.css'
+  styleUrls: ['./payment-success.css']
 })
 export class PaymentSuccess implements OnInit {
   isVerifying = true;
@@ -34,43 +34,69 @@ export class PaymentSuccess implements OnInit {
         // Si no hay session_id, redirigir al home después de 3 segundos
         setTimeout(() => {
           this.goToHome();
-        }, 3000);
+        }, 100000);
       }
     });
   }
 
-  verifyPayment() {
-    if (!this.sessionId) return;
+verifyPayment() {
+  if (!this.sessionId) return;
 
-    this.stripeService.verifyPayment(this.sessionId).subscribe({
-      next: (result) => {
-        console.log('Pago verificado:', result);
+  console.log('Iniciando verificación de pago para session:', this.sessionId);
+  
+  // Agregar un pequeño delay para que el webhook procese
+  setTimeout(() => {
+    this.attemptVerifyPayment(0); // Comenzar con intento 0
+  }, 1000); // Esperar 1 segundo
+}
+
+private attemptVerifyPayment(attempt: number) {
+  const maxAttempts = 3;
+  
+  this.stripeService.verifyPayment(this.sessionId!).subscribe({
+    next: (result: any) => {
+      console.log('Intento', attempt + 1, 'Respuesta:', result);
+      
+      if (result.success) {
+        console.log('✅ Pago verificado exitosamente');
         this.paymentVerified = true;
         this.isVerifying = false;
         
-        // Limpiar el carrito después del pago exitoso
-        this.cartService.clearCart();
+        // El webhook ya limpió el carrito, solo refrescar estado local
+        this.cartService.refreshCart();
         
         // Limpiar datos del localStorage
         localStorage.removeItem('pendingOrderId');
         
-        // Redirigir al home después de 5 segundos
+      } else if (attempt < maxAttempts - 1) {
+        // Si falló pero aún hay intentos, esperar y reintentar
+        console.log('⏳ Pago aún procesando, reintentando en 2 segundos...');
         setTimeout(() => {
-          this.goToHome();
-        }, 5000);
-      },
-      error: (error) => {
-        console.error('Error verificando pago:', error);
+          this.attemptVerifyPayment(attempt + 1);
+        }, 2000);
+        
+      } else {
+        // Se acabaron los intentos
+        console.log('❌ Verificación fallida después de', maxAttempts, 'intentos');
         this.isVerifying = false;
         this.paymentVerified = false;
-        
-        // Redirigir al home después de 3 segundos
-        setTimeout(() => {
-          this.goToHome();
-        }, 3000);
       }
-    });
-  }
+    },
+    error: (error) => {
+      console.error('Error en intento', attempt + 1, ':', error);
+      
+      if (attempt < maxAttempts - 1) {
+        // Reintentar si hay intentos disponibles
+        setTimeout(() => {
+          this.attemptVerifyPayment(attempt + 1);
+        }, 2000);
+      } else {
+        this.isVerifying = false;
+        this.paymentVerified = false;
+      }
+    }
+  });
+}
 
   goToHome() {
     this.router.navigate(['/']);
