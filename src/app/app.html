@@ -1,7 +1,8 @@
 <div class="min-h-screen flex flex-col">
   <app-navbar *ngIf="!shouldHideNavbarFooter"></app-navbar>
   
-  <main class="flex-1" [class.pt-0]="shouldHideNavbarFooter" [@routeAnimations]="getRouteAnimationData()">
+  <main class="flex-1" [class.pt-0]="shouldHideNavbarFooter" 
+        [@slideInAnimation]="getRouteAnimationData()">
     <router-outlet></router-outlet>
   </main>
   

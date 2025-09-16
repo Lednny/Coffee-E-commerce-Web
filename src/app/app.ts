@@ -32,7 +32,10 @@ export class App implements OnInit {
   }
 
   getRouteAnimationData() {
-    return this._contexts.getContext('primary')?.route?.snapshot?.data?.['animation'];
+    const context = this._contexts.getContext('primary');
+    const animationData = context?.route?.snapshot?.data?.['animation'];
+    console.log('Animation data:', animationData); // Para debug
+    return animationData || 'default';
   }
 
   private _checkRouteData() {

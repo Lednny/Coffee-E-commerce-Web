@@ -42,20 +42,21 @@ export const routes: Routes = [
                 path: 'login',
                 loadComponent: () => import('./features/auth/features/auth-log-in/auth-log-in').then(m => m.AuthLogIn),
                 canActivate: [publicGuard],
-                data: { hideNavbarFooter: true, animation: 'LoginPage' }
+                data: { hideNavbarFooter: true, 
+                    animation: 'login' }
             },
             {
                 path: 'signup',
                 loadComponent: () => import('./features/auth/features/auth-sign-up/auth-sign-up').then(m => m.AuthSignUp),
                 canActivate: [publicGuard],
-                data: { hideNavbarFooter: true, animation: 'SignupPage' }
+                data: { hideNavbarFooter: true, 
+                    animation: 'signup' }
             }
         ]
     },
     
     // Rutas protegidas
     
-    // Otras rutas protegidas para e-commerce
     {
         path: 'cart',
         loadComponent: () => import('./features/cart/cart').then(m => m.Cart),
@@ -83,18 +84,4 @@ export const routes: Routes = [
         loadComponent: () => import('./features/payment-cancel/payment-cancel').then(m => m.PaymentCancel),
         data: { animation: 'PaymentCancelPage' }
     }
-    
-    // Comentado hasta que existan los módulos
-    /* 
-    {
-        path: 'cart/checkout',
-        loadComponent: () => import('./features/cart/checkout.component').then(m => m.CheckoutComponent),
-        canActivate: [privateGuard] // Solo si está logueado
-    },
-    {
-        path: 'orders',
-        loadComponent: () => import('./features/orders/orders.component').then(m => m.OrdersComponent),
-        canActivate: [privateGuard] // Solo si está logueado
-    }
-    */
 ];
