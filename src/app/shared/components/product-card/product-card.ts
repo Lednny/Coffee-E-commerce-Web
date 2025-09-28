@@ -73,7 +73,7 @@ export class ProductCard implements OnInit, OnDestroy {
   getCategoryName(categoryId: number): string {
     const categoryNames: { [key: number]: string } = {
       1: 'MESAS',
-      2: 'SILLAS', 
+      2: 'SILLAS',
       3: 'CLOSÉT'
     };
     return categoryNames[categoryId] || 'MUEBLES';
@@ -96,23 +96,11 @@ export class ProductCard implements OnInit, OnDestroy {
 
     // Usar el método addToCart del servicio que ya tiene mejor manejo
     this.cartService.addToCart(this.product);
-    
+
     // Simular un pequeño delay para UX
     setTimeout(() => {
       this.isAddingToCart = false;
-      this.showSuccessMessage();
     }, 500);
-  }
-
-  private showSuccessMessage(): void {
-    // Implementa según tu sistema de notificaciones
-    // Por ejemplo, usando una librería como ngx-toastr
-    console.log('¡Producto agregado exitosamente!');
-  }
-
-  private showErrorMessage(): void {
-    // Implementa según tu sistema de notificaciones
-    console.log('Error al agregar el producto al carrito');
   }
 
   onImageLoad(): void {
@@ -165,5 +153,5 @@ export class ProductCard implements OnInit, OnDestroy {
     return `$${(this.currentPrice || this.product.price || 0).toLocaleString()}`;
   }
 
-  
+
 }

@@ -19,7 +19,7 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
   myCartDropdownButton1!: ElementRef;
   @ViewChild("myCartDropdownButton1Btn")
   myCartDropdownButton1Btn!: ElementRef;
-  @ViewChild('accountDropdownButton') 
+  @ViewChild('accountDropdownButton')
   accountDropdownButton!: ElementRef;
 
   private _authService = inject(AuthService);
@@ -61,23 +61,21 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
     this._subscription.add(
       this._cartService.cartItems$.subscribe(
         (cart: Cart) => {
-          console.log('Navbar recibió actualización del carrito:', cart);
           this.cart = cart;
           this.cartItemsCount = this._cartService.getCartItemsCount();
           this.cartTotal = this._cartService.getCartTotal();
-          console.log('Navbar - Items count:', this.cartItemsCount, 'Total:', this.cartTotal);
           this._cdr.detectChanges();
         }
       )
     );
-    
+
     // También obtener el estado inicial directamente
     this.isAuthenticated = this._authService.isAuthenticated();
     this.currentUser = this._authService.getCurrentUser();
     this.cart = { items: [] };
     this.cartItemsCount = 0;
     this.cartTotal = 0;
-    
+
     // Verificar el estado después de un breve retraso para asegurar que los servicios se hayan inicializado
     setTimeout(() => {
       this.isAuthenticated = this._authService.isAuthenticated();
@@ -90,13 +88,13 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
     // Cerrar dropdowns al hacer click fuera
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
-      
+
       // Cerrar dropdown de cuenta
       if (this.accountDropdownButton && !this.accountDropdownButton.nativeElement.contains(target)) {
         this.accountDropdownOpen = false;
         this._cdr.detectChanges();
       }
-      
+
       // Cerrar dropdown de carrito
       if (this.myCartDropdownButton1Btn && !this.myCartDropdownButton1Btn.nativeElement.contains(target)) {
         const cartDropdown = document.querySelector('.cart-dropdown');
@@ -185,10 +183,10 @@ export class Navbar implements AfterViewInit, OnInit, OnDestroy {
   getUserDisplayName(): string {
     if (this.isAuthenticated && this.currentUser) {
       // Priorizar username, luego id, luego email, luego nombre genérico
-      const displayName = this.currentUser.username || 
+      const displayName = this.currentUser.username ||
                          this.currentUser.id ||           // Usar id como fallback
-                         this.currentUser.name || 
-                         this.currentUser.email?.split('@')[0] || 
+                         this.currentUser.name ||
+                         this.currentUser.email?.split('@')[0] ||
                          'Usuario';
       return displayName;
     }

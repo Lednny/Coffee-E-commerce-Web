@@ -30,7 +30,7 @@ export class Orders implements OnInit, OnDestroy {
   isAuthenticated = false;
   isLoading = false;
   private authSubscription?: Subscription;
-  
+
   // Mapa para almacenar información completa de productos
   productCache: Map<number, Product> = new Map();
 
@@ -51,11 +51,11 @@ export class Orders implements OnInit, OnDestroy {
 
     // También verificar estado inicial SOLO si no se ha verificado ya
     const initialAuth = this.authService.isAuthenticated();
-    
+
     if (initialAuth && this.orders.length === 0) {
       setTimeout(() => this.loadOrders(), 100);
     }
-    
+
     setTimeout(() => {
       this.scrollAnimateElements = document.querySelectorAll('.scroll-animate');
       this.checkScrollAnimations();
@@ -76,7 +76,6 @@ export class Orders implements OnInit, OnDestroy {
   // Manejar cuando el usuario regresa a la pestaña
   handleVisibilityChange() {
     if (!document.hidden && this.isAuthenticated) {
-      console.log('Usuario regresó a la pestaña, recargando órdenes...');
       this.loadOrders();
     }
   }
@@ -85,13 +84,12 @@ export class Orders implements OnInit, OnDestroy {
     if (!this.isAuthenticated || this.isLoading) {
       return;
     }
-    
+
     this.isLoading = true;
-    
+
     this.orderService.getUserOrders().subscribe({
       next: (orders) => {
         this.orders = orders || [];
-        this.loadProductDetails(orders || []);
       },
       error: (error) => {
         console.error('Error cargando órdenes:', error);
@@ -116,92 +114,27 @@ export class Orders implements OnInit, OnDestroy {
     setTimeout(() => this.loadOrders(), 100);
   }
 
-
-  // Cargar detalles completos de productos para todas las órdenes
-  loadProductDetails(orders: OrderDTO[]) {
-    console.log('=== loadProductDetails iniciado ===');
-    console.log('Orders recibidas:', orders?.length || 0);
-    
-    if (!orders || orders.length === 0) {
-      console.log('No hay órdenes, aplicando filtros y finalizando carga');
-      this.filterOrders();
-      this.isLoading = false;
-      return;
-    }
-
-    // Recopilar todos los productIds únicos
-    const productIds = new Set<number>();
-    orders.forEach(order => {
-      order.items?.forEach(item => {
-        if (item.productId && !this.productCache.has(item.productId)) {
-          productIds.add(item.productId);
-        }
-      });
-    });
-
-    console.log('ProductIds únicos encontrados:', Array.from(productIds));
-    console.log('Productos en cache actual:', this.productCache.size);
-
-    if (productIds.size === 0) {
-      console.log('No hay productIds nuevos para cargar, aplicando filtros directamente');
-      this.filterOrders();
-      this.isLoading = false;
-      console.log('isLoading establecido a false. filteredOrders final:', this.filteredOrders);
-      this.cdr.detectChanges();
-      return;
-    }
-
-    // Cargar información de productos en paralelo
-    const productRequests = Array.from(productIds).map(id => 
-      this.backendService.getProductById(id)
-    );
-
-    forkJoin(productRequests).subscribe({
-      next: (products) => {
-        // Guardar productos en cache
-        products.forEach(product => {
-          if (product && product.id) {
-            this.productCache.set(product.id, product);
-          }
-        });
-        
-        this.filterOrders();
-        this.isLoading = false;
-        console.log('Carga de productos completada. isLoading:', this.isLoading, 'filteredOrders:', this.filteredOrders);
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Error loading product details:', error);
-        // Continuar sin detalles de producto
-        this.filterOrders();
-        this.isLoading = false;
-        console.log('Error en carga de productos. isLoading:', this.isLoading, 'filteredOrders:', this.filteredOrders);
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
   filterOrders() {
     if (this.selectedStatus === 'todos') {
       this.filteredOrders = [...this.orders];
     } else {
       const statusMap: { [key: string]: string } = {
         'pendiente': 'PENDING',
-        'procesando': 'PROCESSING', 
+        'procesando': 'PROCESSING',
         'enviado': 'SHIPPED',
         'entregado': 'DELIVERED',
         'cancelado': 'CANCELLED'
       };
-      
+
       const backendStatus = statusMap[this.selectedStatus];
-      
+
       if (backendStatus) {
         this.filteredOrders = this.orders.filter(order => order.status === backendStatus);
       } else {
         this.filteredOrders = [...this.orders];
       }
     }
-    
+
     this.cdr.detectChanges();
   }
 
@@ -213,7 +146,7 @@ export class Orders implements OnInit, OnDestroy {
   getStatusColor(status: string): string {
     // Usar el método del OrderService para obtener colores consistentes
     const color = this.orderService.getOrderStatusColor(status);
-    
+
     const colorMap: { [key: string]: string } = {
       'warning': 'bg-yellow-100 text-yellow-800',
       'info': 'bg-blue-100 text-blue-800',
@@ -222,7 +155,7 @@ export class Orders implements OnInit, OnDestroy {
       'danger': 'bg-red-100 text-red-800',
       'secondary': 'bg-gray-100 text-gray-800'
     };
-    
+
     return colorMap[color] || 'bg-gray-100 text-gray-800';
   }
 
@@ -303,21 +236,6 @@ export class Orders implements OnInit, OnDestroy {
     } else {
       alert('Este pedido aún no tiene información de seguimiento disponible.');
     }
-  }
-
-  viewOrderDetails(order: OrderDTO) {
-    console.log('Detalles de la orden:', {
-      id: order.id,
-      userOrderNumber: order.userOrderNumber,
-      status: order.status,
-      total: order.total,
-      itemsCount: order.items?.length || 0,
-      createdAt: order.createdAt,
-      items: order.items
-    });
-    
-    // Aquí puedes implementar un modal o navegación a página de detalles
-    alert(`Ver detalles del pedido #${order.userOrderNumber} (próximamente)`);
   }
 
   @HostListener('window:scroll', [])

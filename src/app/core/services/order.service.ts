@@ -46,7 +46,7 @@ export class OrderService {
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
-    
+
     return new HttpHeaders({
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` })
@@ -82,15 +82,7 @@ return this.http.post<any>(`${this.apiUrl}/checkout`, {}, {
   getUserOrders(): Observable<OrderDTO[]> {
     return this.http.get<OrderDTO[]>(this.apiUrl, {
       headers: this.getAuthHeaders()
-    }).pipe(
-      tap(orders => {
-        console.log('Orders loaded:', orders?.length || 0);
-      }),
-      catchError(error => {
-        console.error('Error loading orders:', error);
-        return throwError(() => error);
-      })
-    );
+    });
   }
 
   // Obtener orden por ID
@@ -111,7 +103,7 @@ return this.http.post<any>(`${this.apiUrl}/checkout`, {}, {
 
   // Obtener total de la orden
   getOrderTotal(order: OrderDTO): number {
-    return order.total; 
+    return order.total;
   }
 
   // Obtener cantidad total de items

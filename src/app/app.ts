@@ -16,11 +16,11 @@ import { slideInAnimation } from './animations/route-animations';
 })
 export class App implements OnInit {
   protected readonly title = signal('coffee-web');
-  
+
   private _router = inject(Router);
   private _activatedRoute = inject(ActivatedRoute);
   private _contexts = inject(ChildrenOutletContexts);
-  
+
   shouldHideNavbarFooter = false;
 
   ngOnInit() {
@@ -34,7 +34,6 @@ export class App implements OnInit {
   getRouteAnimationData() {
     const context = this._contexts.getContext('primary');
     const animationData = context?.route?.snapshot?.data?.['animation'];
-    console.log('Animation data:', animationData); // Para debug
     return animationData || 'default';
   }
 
@@ -43,7 +42,7 @@ export class App implements OnInit {
     while (route.firstChild) {
       route = route.firstChild;
     }
-    
+
     route.data.subscribe(data => {
       this.shouldHideNavbarFooter = data['hideNavbarFooter'] || false;
     });

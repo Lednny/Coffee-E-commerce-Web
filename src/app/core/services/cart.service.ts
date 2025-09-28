@@ -67,12 +67,9 @@ export class CartService {
   }
 
   public loadCart(): void {
-    console.log('Cargando carrito desde el servidor...');
     this.getMyCart().subscribe({
       next: (cart) => {
-        console.log('Carrito cargado desde servidor:', cart);
         this.cartSubject.next(cart);
-        console.log('Estado del carrito actualizado:', this.cartSubject.value);
       },
       error: (error) => {
         console.error('Error loading cart:', error);
@@ -103,12 +100,10 @@ export class CartService {
   }
 
   removeItemFromCart(itemId: number): Observable<Cart> {
-    console.log(`Attempting to remove item ${itemId} from cart`);
     return this.http.delete<Cart>(`${this.apiUrl}/remove/${itemId}`, { 
       headers: this.getAuthHeaders() 
     }).pipe(
       tap(cart => {
-        console.log('Item removed successfully, updating cart state:', cart);
         this.cartSubject.next(cart);
       }),
       catchError(error => {
@@ -116,7 +111,6 @@ export class CartService {
         
         // Si hay error 401, limpiar tokens y recargar carrito
         if (error.status === 401) {
-          console.log('Unauthorized error - cleaning auth data');
           localStorage.removeItem('auth_token');
           localStorage.removeItem('current_user');
         }
@@ -138,7 +132,6 @@ export class CartService {
 
   // Métodos para el navbar (compatibilidad)
   removeFromCart(itemId: number): void {
-    console.log('Attempting to remove item with ID:', itemId);
     
     // Optimistic update: eliminar localmente primero
     const currentCart = this.cartSubject.value;
@@ -147,19 +140,16 @@ export class CartService {
     
     // Actualizar inmediatamente la UI
     this.cartSubject.next(updatedCart);
-    console.log('Item removed optimistically from local cart');
     
     // Luego sincronizar con el backend
     this.removeItemFromCart(itemId).subscribe({
       next: (cart) => {
-        console.log('Item removed from cart successfully on backend', cart);
         // Actualizar con la respuesta del backend para mantener consistencia
         this.cartSubject.next(cart);
       },
       error: (error) => {
         console.error('Error removing item from cart on backend:', error);
         // Si falla, revertir el cambio optimista recargando desde el backend
-        console.log('Reverting optimistic update...');
         this.loadCart();
       }
     });
@@ -173,7 +163,6 @@ export class CartService {
     
     this.updateItemQuantity(itemId, quantity).subscribe({
       next: (cart) => {
-        console.log('Quantity updated', cart);
       },
       error: (error) => {
         console.error('Error updating quantity:', error);
@@ -186,7 +175,6 @@ export class CartService {
       headers: this.getAuthHeaders() 
     }).subscribe({
       next: (cart) => {
-        console.log('Carrito limpiado desde el servidor:', cart);
         this.cartSubject.next(cart);
       },
       error: (error) => {
@@ -207,7 +195,6 @@ export class CartService {
 
   // Método público para refrescar el carrito
   refreshCart(): void {
-    console.log('Refrescando carrito manualmente...');
     this.loadCart();
   }
 
@@ -224,13 +211,9 @@ export class CartService {
     };
     
     
-    console.log('Enviando item al carrito:', cartItem);
     
     this.addItemToCart(cartItem).subscribe({
       next: (cart) => {
-        console.log('Respuesta del servidor:', cart);
-        console.log('Items en el carrito:', cart.items);
-        console.log('Estado actual del carrito después de agregar:', this.cartSubject.value);
         
         // Forzar actualización del carrito desde el servidor
         this.loadCart();

@@ -42,8 +42,6 @@ export class PaymentSuccess implements OnInit {
 verifyPayment() {
   if (!this.sessionId) return;
 
-  console.log('Iniciando verificación de pago para session:', this.sessionId);
-  
   // Agregar un pequeño delay para que el webhook procese
   setTimeout(() => {
     this.attemptVerifyPayment(0); // Comenzar con intento 0
@@ -52,39 +50,34 @@ verifyPayment() {
 
 private attemptVerifyPayment(attempt: number) {
   const maxAttempts = 3;
-  
+
   this.stripeService.verifyPayment(this.sessionId!).subscribe({
     next: (result: any) => {
-      console.log('Intento', attempt + 1, 'Respuesta:', result);
-      
       if (result.success) {
-        console.log('✅ Pago verificado exitosamente');
         this.paymentVerified = true;
         this.isVerifying = false;
-        
+
         // El webhook ya limpió el carrito, solo refrescar estado local
         this.cartService.refreshCart();
-        
+
         // Limpiar datos del localStorage
         localStorage.removeItem('pendingOrderId');
-        
+
       } else if (attempt < maxAttempts - 1) {
         // Si falló pero aún hay intentos, esperar y reintentar
-        console.log('⏳ Pago aún procesando, reintentando en 2 segundos...');
         setTimeout(() => {
           this.attemptVerifyPayment(attempt + 1);
         }, 2000);
-        
+
       } else {
         // Se acabaron los intentos
-        console.log('❌ Verificación fallida después de', maxAttempts, 'intentos');
         this.isVerifying = false;
         this.paymentVerified = false;
       }
     },
     error: (error) => {
       console.error('Error en intento', attempt + 1, ':', error);
-      
+
       if (attempt < maxAttempts - 1) {
         // Reintentar si hay intentos disponibles
         setTimeout(() => {

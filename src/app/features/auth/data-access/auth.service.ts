@@ -41,7 +41,7 @@ export class AuthService {
     // Obtener sesión actual
     getCurrentUser() {
         const currentUser = this._currentUser.value;
-        
+
         // Si no hay usuario en memoria pero sí en localStorage y el token es válido
         if (!currentUser && this.isAuthenticated()) {
             const userStr = localStorage.getItem('current_user');
@@ -57,7 +57,7 @@ export class AuthService {
                 }
             }
         }
-        
+
         return currentUser;
     }
 
@@ -65,29 +65,27 @@ export class AuthService {
     isAuthenticated(): boolean {
         const token = this._getToken();
         if (!token) {
-            console.log('No hay token');
             return false;
         }
 
         try {
             const tokenParts = token.split('.');
             if (tokenParts.length !== 3) {
-                console.log('Token con formato inválido');
                 return false;
             }
 
             const payload = JSON.parse(atob(tokenParts[1]));
             const isExpired = payload.exp < Date.now() / 1000;
             const isValid = !isExpired;
-            
-            console.log('Verificación de token:', { 
-                hasToken: true, 
-                isExpired, 
+
+            console.log('Verificación de token:', {
+                hasToken: true,
+                isExpired,
                 isValid,
                 exp: payload.exp,
                 now: Date.now() / 1000
             });
-            
+
             return isValid;
         } catch (error) {
             console.error('Error al verificar token:', error);
@@ -193,7 +191,7 @@ export class AuthService {
                 if (tokenParts.length === 3) {
                     const payload = JSON.parse(atob(tokenParts[1]));
                     const isExpired = payload.exp < Date.now() / 1000;
-                    
+
                     if (!isExpired) {
                         const user = JSON.parse(userStr);
                         this._currentUser.next(user);

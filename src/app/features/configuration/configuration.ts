@@ -36,13 +36,13 @@ export class Configuration implements OnInit {
     state: '',
     zipCode: ''
   };
-  
+
   // Profile properties
   currentUser: UserProfile | null = null;
   isEditingProfile = false;
   originalUser: UserProfile | null = null;
   profileLoading = false;
-  
+
   // Settings properties
   settings: UserPreferences = {
     currency: 'MXN',
@@ -103,7 +103,6 @@ export class Configuration implements OnInit {
         this.currentUser = user;
         this.originalUser = { ...user };
         this.profileLoading = false;
-        console.log('Perfil de usuario cargado:', user);
       },
       error: (error) => {
         console.error('Error cargando perfil:', error);
@@ -122,7 +121,6 @@ export class Configuration implements OnInit {
         this.settings = { ...this.settings, ...preferences };
         this.originalSettings = { ...this.settings };
         this.settingsLoading = false;
-        console.log('Preferencias cargadas:', preferences);
       },
       error: (error) => {
         console.error('Error cargando preferencias:', error);
@@ -139,12 +137,11 @@ export class Configuration implements OnInit {
       next: (addresses) => {
         this.addresses = addresses;
         this.loading = false;
-        console.log('Direcciones cargadas:', addresses);
       },
       error: (error) => {
         console.error('Error cargando direcciones:', error);
         this.loading = false;
-        
+
         if (error.status === 401) {
           this.showErrorMessage('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
         } else if (error.status === 403) {
@@ -348,29 +345,29 @@ export class Configuration implements OnInit {
       exportDate: new Date().toISOString(),
       version: '1.0'
     };
-    
+
     const dataStr = JSON.stringify(exportData, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
+
     const exportFileDefaultName = `coffee-web-settings-${new Date().toISOString().split('T')[0]}.json`;
-    
+
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
-    
+
     this.showSuccessMessage('Configuraciones exportadas correctamente');
   }
 
   importSettings(event: any) {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = (e: any) => {
       try {
         const importedData = JSON.parse(e.target.result);
-        
+
         // Validar estructura del archivo
         if (importedData.settings && typeof importedData.settings === 'object') {
           // Mergear solo los campos válidos
@@ -385,7 +382,7 @@ export class Configuration implements OnInit {
               newProducts: importedData.settings.notifications?.newProducts ?? this.settings.notifications.newProducts
             }
           };
-          
+
           // Guardar automáticamente
           this.saveSettings();
           this.showSuccessMessage('Configuraciones importadas y guardadas correctamente');
@@ -398,7 +395,7 @@ export class Configuration implements OnInit {
       }
     };
     reader.readAsText(file);
-    
+
     // Limpiar el input
     event.target.value = '';
   }
@@ -409,7 +406,7 @@ export class Configuration implements OnInit {
     notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
     notification.textContent = message;
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
       if (document.body.contains(notification)) {
         document.body.removeChild(notification);
@@ -422,7 +419,7 @@ export class Configuration implements OnInit {
     notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
     notification.textContent = message;
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
       if (document.body.contains(notification)) {
         document.body.removeChild(notification);
@@ -444,7 +441,7 @@ export class Configuration implements OnInit {
 
   saveProfile() {
     if (!this.currentUser) return;
-    
+
     this.profileLoading = true;
     this.backendService.updateUserProfile(this.currentUser).subscribe({
       next: (updatedUser) => {

@@ -24,9 +24,7 @@ export class PaymentCancel implements OnInit, OnDestroy {
     this.route.queryParams.subscribe(params => {
       this.orderId = params['order_id'] || null;
       this.sessionId = params['session_id'] || null;
-      
-      console.log('Payment cancelled - Order ID:', this.orderId, 'Session ID:', this.sessionId);
-    });
+          });
 
     // Iniciar cuenta regresiva para redirigir automáticamente
     this.startCountdown();

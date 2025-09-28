@@ -77,7 +77,7 @@ export class Cart implements OnInit, OnDestroy {
     }
     const target = event.target as HTMLInputElement;
     const newQuantity = parseInt(target.value, 10);
-    
+
     if (newQuantity > 0) {
       this.cartService.updateQuantity(item.id, newQuantity);
     } else {
@@ -125,19 +125,16 @@ export class Cart implements OnInit, OnDestroy {
       next: (addresses) => {
         this.addresses = addresses;
         this.isLoading = false;
-        
+
         // Seleccionar la primera dirección por defecto
         if (this.addresses.length > 0 && this.addresses[0].id) {
           this.selectedAddressId = this.addresses[0].id;
         }
-        
-        console.log('Direcciones cargadas:', this.addresses);
-        console.log('Dirección seleccionada por defecto:', this.selectedAddressId);
       },
       error: (error) => {
         console.error('Error cargando direcciones:', error);
         this.isLoading = false;
-        
+
         // Si hay error, mostrar mensaje al usuario
         if (error.status === 401) {
           alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
@@ -151,7 +148,6 @@ export class Cart implements OnInit, OnDestroy {
   // Seleccionar dirección
   selectAddress(addressId: number): void {
     this.selectedAddressId = addressId;
-    console.log('Nueva dirección seleccionada:', addressId);
   }
 
   // Refrescar direcciones (útil si vienen de configuración)
@@ -166,16 +162,13 @@ export class Cart implements OnInit, OnDestroy {
 
   // Proceso completo de checkout
 async processCheckout() {
-    console.log('=== INICIANDO CHECKOUT ===');
-    console.log('AddressId seleccionado:', this.selectedAddressId);
-    console.log('Direcciones disponibles:', this.addresses);
-    
+
     // Validar que haya direcciones disponibles
     if (this.addresses.length === 0) {
         alert('No tienes direcciones registradas. Por favor, ve a Configuración para agregar una dirección.');
         return;
     }
-    
+
     if (!this.selectedAddressId) {
         alert('Por favor selecciona una dirección de entrega');
         return;
@@ -186,40 +179,27 @@ async processCheckout() {
     try {
         // Verificar token
         const token = localStorage.getItem('auth_token');
-        console.log('Token presente:', !!token);
-        console.log('Token (primeros 20 chars):', token?.substring(0, 20));
-        
         if (!token) {
             alert('Necesitas iniciar sesión para continuar');
             this.isProcessing = false;
             return;
         }
-        
-        console.log('Enviando petición de orden...');
-        console.log('URL que se va a llamar:', `http://localhost:8080/api/orders/create?addressId=${this.selectedAddressId}`);
-        
+
         // Crear la orden usando OrderService
         const order = await this.orderService.createOrder(this.selectedAddressId).toPromise();
-        
+
         if (!order) {
             throw new Error('No se pudo crear la orden');
         }
-        console.log('✅ Orden creada exitosamente:', order);
-
-        console.log('Creando sesión de Stripe...');
         const checkoutSession = await this.stripeService.createCheckoutSession(order.id).toPromise();
-        
+
         if (checkoutSession?.checkoutUrl) {
-            console.log('✅ Redirigiendo a Stripe:', checkoutSession.checkoutUrl);
             window.location.href = checkoutSession.checkoutUrl;
         } else {
             throw new Error('No se pudo obtener la URL de pago');
         }
 
     } catch (error: any) {
-        console.error('❌ Error en el checkout:', error);
-        console.error('Error completo:', error);
-        
         if (error.status === 400) {
             alert('Datos inválidos. Verifica que hayas seleccionado una dirección válida.');
         } else if (error.status === 403) {
@@ -229,7 +209,7 @@ async processCheckout() {
         } else {
             alert(`Error: ${error.message || 'Error desconocido'}`);
         }
-        
+
         this.isProcessing = false;
     }
 }

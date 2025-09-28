@@ -34,8 +34,6 @@ export class AuthLogIn {
       this._authService.logIn(credentials).subscribe({
         next: (response) => {
           this.isLoading = false;
-          console.log('Login exitoso:', response); // Para debug
-          // Pequeño delay para asegurar que el estado se actualice
           setTimeout(() => {
             this._router.navigate(['/home']);
           }, 100);
@@ -81,7 +79,5 @@ export class AuthLogIn {
   }
 
   loginWithGoogle(): void {
-    // TODO: Implement Google login logic here
-    console.log('Google login clicked');
   }
 }

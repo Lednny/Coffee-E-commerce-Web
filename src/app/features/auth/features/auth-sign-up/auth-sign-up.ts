@@ -37,14 +37,12 @@ onSubmit() {
     const { confirmPassword, ...formData } = this.signupForm.value;
     const credentials: RegisterCredentials = {
       ...formData,
-      role: 'USER' 
+      role: 'USER'
     };
 
     this._authService.signUp(credentials).subscribe({
       next: (response) => {
         this.isLoading = false;
-        console.log('Registro exitoso:', response); // Para debug
-        // Pequeño delay para asegurar que el estado se actualice
         setTimeout(() => {
           this._router.navigate(['/home']);
         }, 100);
@@ -105,18 +103,16 @@ onSubmit() {
         return 'La contraseña debe tener al menos 6 caracteres';
       }
     }
-    
+
     if (fieldName === 'confirmPassword' && this.signupForm.errors?.['passwordMismatch'] && this.signupForm.get('confirmPassword')?.touched) {
       return 'Las contraseñas no coinciden';
     }
-    
+
     return '';
   }
 
 
 // Add this method to fix the error
 loginWithGoogle(): void {
-  // TODO: Implement Google sign up logic here
-  console.log('Google sign up clicked');
 }
 }
